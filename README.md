@@ -15,18 +15,26 @@ Firestore → **Rules** ট্যাবে গিয়ে এটা বসা�
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    // শুধু আপনার Admin ইমেইল। নিচের YOUR_ADMIN_EMAIL এর জায়গায় আপনার Admin লগইন ইমেইল ছোট হাতের অক্ষরে বসান
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email == 'YOUR_ADMIN_EMAIL';
+    }
+
     match /products/{doc} {
       allow read: if true;
-      allow create, delete: if request.auth != null;
-      allow update: if request.auth != null
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin()
         || (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['stock','sold'])
             && request.resource.data.stock >= 0
             && request.resource.data.stock < resource.data.stock);
     }
+
     match /orders/{doc} {
       allow get: if true;
-      allow list, delete: if request.auth != null;
-      allow update: if request.auth != null
+      allow list, delete: if isAdmin();
+      allow update: if isAdmin()
         || (resource.data.status in ['Shipped','Delivered']
             && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['customerConfirmed','customerConfirmedAt'])
             && request.resource.data.customerConfirmed == true
@@ -42,12 +50,14 @@ service cloud.firestore {
         && request.resource.data.total is number
         && request.resource.data.items is list && request.resource.data.items.size() <= 50;
     }
+
     match /memos/{doc} {
-      allow read, write: if request.auth != null;
+      allow read, write: if isAdmin();
     }
+
     match /offers/{doc} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if isAdmin();
     }
 
     match /visits/{doc} {
@@ -59,7 +69,7 @@ service cloud.firestore {
         && (!('type' in request.resource.data) || request.resource.data.type == 'order')
         && (!('name' in request.resource.data) || (request.resource.data.name is string && request.resource.data.name.size() <= 100))
         && (!('phone' in request.resource.data) || (request.resource.data.phone is string && request.resource.data.phone.size() <= 20));
-      allow read, update, delete: if request.auth != null;
+      allow read, update, delete: if isAdmin();
     }
   }
 }
@@ -80,3 +90,10 @@ service cloud.firestore {
 ## নোট
 - Admin প্যানেলে ঢুকতে Firebase Authentication এ বানানো ইমেইল/পাসওয়ার্ড লাগবে।
 - পেমেন্ট (bKash/Nagad) এখানে শুধু "মেথড সিলেক্ট" — আসল পেমেন্ট গেটওয়ে ইন্টিগ্রেশন আলাদা এবং তাদের নিজস্ব merchant account/API লাগবে; আপাতত অর্ডার WhatsApp এ পাঠিয়ে ম্যানুয়ালি কনফার্ম করার ব্যবস্থা আছে।
+
+
+## Firebase নিরাপত্তা চেকলিস্ট (একবার করে নিন)
+1. **নতুন অ্যাকাউন্ট খোলা বন্ধ করুন:** Firebase Console → Authentication → Settings → User actions → "Enable create (sign-up)" বন্ধ করুন। নাহলে যে কেউ আপনার সাইটের পাবলিক API key দিয়ে নিজে অ্যাকাউন্ট খুলে ফেলতে পারে।
+2. **Rules এ Admin ইমেইল বসান:** উপরের Rules এ `YOUR_ADMIN_EMAIL` এর জায়গায় আপনার Admin লগইন ইমেইল (ছোট হাতের অক্ষরে) বসিয়ে Publish করুন। তারপর Admin পেজে একবার লগইন করে দেখুন সব ঠিক আছে কিনা।
+3. **API key সীমিত করুন:** Google Cloud Console → APIs & Services → Credentials → Browser key → Application restrictions: HTTP referrers → `https://rafiqbpi09-cyber.github.io/*`।
+4. **খরচ নজরে রাখুন:** Firebase Console → Usage এ দেখুন। ফ্রি (Spark) প্ল্যানে দিনে ৫০,০০০ রিড ও ২০,০০০ রাইট ফ্রি। প্রতিটা ভিজিটে সব প্রোডাক্ট পড়া হয়, তাই প্রোডাক্ট বেশি হলে ভিজিটর বাড়লে সীমা পার হতে পারে।

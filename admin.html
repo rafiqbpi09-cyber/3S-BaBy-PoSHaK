@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Baby Poshak Admin</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%9B%A0%3C/text%3E%3C/svg%3E">
+<meta name="theme-color" content="#e85d8a">
 <style>
 :root{
   --pink:#ff8fab; --pink-dark:#e85d8a; --cream:#fff8f2; --card:#ffffff;
@@ -15,8 +17,8 @@
 }
 *{box-sizing:border-box;}
 body{margin:0;background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,-apple-system,sans-serif;}
-header{position:sticky;top:0;z-index:10;background:linear-gradient(135deg,var(--pink),var(--pink-dark));color:#fff;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;box-shadow:var(--shadow);flex-wrap:wrap;gap:10px;}
-header h1{margin:0;font-size:20px;cursor:pointer;}
+header{position:sticky;top:0;z-index:10;background:linear-gradient(135deg,var(--pink),var(--pink-dark));color:#fff;padding:10px max(16px,calc((100vw - 1680px)/2 + 24px));display:flex;align-items:center;justify-content:space-between;box-shadow:var(--shadow);flex-wrap:wrap;gap:10px;}
+header h1{margin:0;font-size:20px;cursor:pointer;white-space:nowrap;}
 .navicons{display:flex;gap:18px;align-items:center;}
 .navicon{display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;font-size:11px;color:#fff;position:relative;}
 .navicon span.ic{font-size:18px;}
@@ -25,40 +27,17 @@ header h1{margin:0;font-size:20px;cursor:pointer;}
 @keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.25);}}
 .newordermodal{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:60;display:flex;align-items:center;justify-content:center;padding:16px;}
 .newordercard{background:var(--card);border-radius:16px;padding:22px;max-width:360px;width:100%;text-align:center;box-shadow:0 20px 40px rgba(0,0,0,.3);}
-.navwrap{position:sticky;top:62px;z-index:9;background:var(--card);border-bottom:1px solid var(--border);}
-.categorynav{display:flex;overflow-x:auto;padding:0 8px;}
-.navitem{flex-shrink:0;padding:12px 14px;font-size:12px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;cursor:pointer;white-space:nowrap;border-bottom:3px solid transparent;}
-.navitem:hover{color:var(--pink-dark);}
-.navitem.active{color:var(--pink-dark);border-bottom-color:var(--pink-dark);}
-.megapanel{display:none;position:absolute;top:100%;left:0;right:0;background:var(--card);box-shadow:0 14px 26px rgba(0,0,0,.2);max-height:70vh;overflow-y:auto;z-index:50;padding:18px 24px 20px;border-top:1px solid var(--border);}
-.megapanel.open{display:block;}
-.megahead{color:var(--pink-dark);font-weight:800;font-size:13px;letter-spacing:.6px;text-transform:uppercase;margin-bottom:10px;}
-.megagrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:2px 28px;}
-.megaitem{padding:8px 0;font-size:14px;cursor:pointer;}
-.megaitem:hover{color:var(--pink-dark);font-weight:600;}
-.megaview{margin-top:14px;color:var(--pink-dark);font-weight:700;font-size:13px;cursor:pointer;}
-.megaoverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:45;}
-.megaoverlay.open{display:block;}
-.tabbtn{background:rgba(255,255,255,.25);border:none;color:#fff;padding:8px 14px;border-radius:20px;font-size:13px;cursor:pointer;}
-.tabbtn.active{background:#fff;color:var(--pink-dark);font-weight:600;}
-main{max-width:900px;margin:0 auto;padding:16px;padding-bottom:90px;}
+main{max-width:1680px;margin:0 auto;padding:16px 24px 90px;}
 .hidden{display:none !important;}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;}
 .card{background:var(--card);border-radius:16px;padding:14px;box-shadow:var(--shadow);border:1px solid var(--border);}
 .emoji{font-size:40px;text-align:center;margin-bottom:6px;}
-.pname{font-weight:600;font-size:15px;margin:4px 0 2px;}
-.pprice{color:var(--pink-dark);font-weight:700;}
 .pstock{font-size:12px;color:var(--muted);}
 .pstock.low{color:#d9534f;font-weight:600;}
-button.buy{width:100%;margin-top:8px;background:var(--pink);color:#fff;border:none;padding:9px;border-radius:10px;font-weight:600;cursor:pointer;}
-button.buy:disabled{background:#ccc;cursor:not-allowed;}
-.cartfab{position:fixed;bottom:20px;right:20px;background:var(--pink-dark);color:#fff;border:none;border-radius:50px;padding:14px 20px;font-weight:700;box-shadow:var(--shadow);cursor:pointer;z-index:20;}
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:30;display:flex;align-items:flex-end;justify-content:center;}
 .overlay.center{align-items:center;padding:16px;}
 .overlay.center .sheet{border-radius:16px;max-height:85vh;}
 .sheet{background:var(--card);width:100%;max-width:500px;border-radius:20px 20px 0 0;padding:20px;max-height:85vh;overflow-y:auto;position:relative;}
 .cartrow{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);}
-.qtybtn{background:var(--border);border:none;width:26px;height:26px;border-radius:50%;cursor:pointer;font-weight:700;}
 input,select,textarea{width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;margin:6px 0 12px;background:var(--card);color:var(--text);font-size:14px;}
 label{font-size:13px;color:var(--muted);}
 .total{font-size:18px;font-weight:700;margin:10px 0;}
@@ -82,54 +61,18 @@ th{background:#ffe3ec;color:var(--pink-dark);text-transform:uppercase;font-size:
 .subtabs button{background:var(--card);border:1px solid var(--border);padding:7px 12px;border-radius:8px;cursor:pointer;font-size:13px;}
 .subtabs button.active{background:var(--pink);color:#fff;border-color:var(--pink);}
 .note{font-size:12px;color:var(--muted);margin-top:10px;}
-.breadcrumb{font-size:12px;color:var(--muted);margin-bottom:10px;}
-.detail-gallery{display:flex;gap:8px;margin-bottom:10px;}
-.thumbs{display:flex;flex-direction:column;gap:6px;}
-.thumbs img{width:44px;height:44px;object-fit:cover;border-radius:6px;border:1px solid var(--border);cursor:pointer;}
-.mainimg{flex:1;width:100%;max-height:240px;object-fit:cover;border-radius:12px;cursor:zoom-in;}
-.oldprice{text-decoration:line-through;color:var(--muted);font-size:14px;margin-left:6px;}
-.qtyrow{display:flex;align-items:center;gap:10px;margin:10px 0;}
-.qtybox{display:flex;align-items:center;gap:8px;border:1px solid var(--border);border-radius:8px;padding:4px 10px;}
-.btn2col{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0;}
-.btn2col a,.btn2col button{display:block;text-align:center;text-decoration:none;padding:11px;border-radius:9px;font-weight:700;font-size:13px;border:none;cursor:pointer;}
-.bt-cart{background:var(--pink);color:#fff;}
-.bt-order{background:#222;color:#fff;}
-.bt-call{background:#222;color:#fff;}
-.bt-wa{background:#25D366;color:#fff;}
-.sharegrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:10px 0;}
-.sharegrid button{border:none;border-radius:8px;padding:8px 4px;font-size:11px;cursor:pointer;font-weight:700;color:#fff;}
-.sh-fb{background:#1877F2;}
-.sh-msg{background:linear-gradient(45deg,#00B2FF,#006AFF,#A033FF,#FF5280);}
-.sh-wa{background:#25D366;}
-.sh-copy{background:#6c6c6c;}
 .features-list{margin:8px 0;padding-left:18px;font-size:13px;}
 .features-list li{margin-bottom:3px;}
-.storelayout{display:flex;gap:16px;align-items:flex-start;}
-.sidebar{width:220px;flex-shrink:0;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;}
-.sidebar h4{margin:14px 0 8px;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
-.sidebar h4:first-child{margin-top:0;}
-.sidebar-link{display:flex;justify-content:space-between;padding:7px 8px;border-radius:6px;cursor:pointer;font-size:13px;}
-.sidebar-link:hover{background:var(--border);}
-.sidebar-link.active{background:var(--pink);color:#fff;}
-.sidebar-link .cnt{color:var(--muted);font-size:11px;}
-.sidebar-link.active .cnt{color:#fff;}
-.storecontent{flex:1;min-width:0;}
-.searchbar{position:relative;margin-bottom:14px;}
-.searchbar input{padding:12px 12px 12px 38px;border-radius:10px;margin:0;}
-.searchbar span{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);}
-.quickpills{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
-.qpill{display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:30px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid transparent;}
-.qpill.active{outline:2px solid currentColor;}
-.qp-blue{background:#e8f1ff;color:#2563eb;}
-.qp-pink{background:#ffe8ef;color:#e11d6f;}
-.qp-green{background:#e6f9f0;color:#0e9f6e;}
-.qp-purple{background:#f1e8ff;color:#7c3aed;}
-.mobile-filter-toggle{display:none;width:auto;margin-bottom:10px;}
+table.wide{min-width:680px;}
 @media (max-width:700px){
-  .storelayout{flex-direction:column;}
-  .sidebar{width:100%;display:none;}
-  .sidebar.open{display:block;}
-  .mobile-filter-toggle{display:inline-block;}
+  main{padding:12px 12px 90px;}
+  header{padding:8px 12px;}
+  header h1{font-size:16px;}
+  .navicons{gap:12px;}
+}
+@media (max-width:380px){
+  .navicon small{display:none;}
+  .navicons{gap:10px;}
 }
 </style>
 </head>
@@ -364,17 +307,17 @@ async function adminLogin(){
   try{ await auth.signInWithEmailAndPassword(email,pass); }
   catch(e){ alert('লগইন ব্যর্থ: '+e.message); }
 }
-function setAdminTab(t){ adminTab=t; renderAdminBody(); document.querySelectorAll('.subtabs button').forEach(b=>b.classList.remove('active')); event.target.classList.add('active'); }
+function setAdminTab(t){ adminTab=t; renderAdmin(); }
 function renderAdminBody(){
   const body = document.getElementById('adminBody'); if(!body) return;
   if(adminTab==='products'){
     body.innerHTML = `<button class="primary" style="margin-bottom:12px" onclick="editProduct(null)">+ নতুন প্রোডাক্ট</button>
-    <div class="overflow-x"><table><tr><th>Photo</th><th>Product</th><th>Categories</th><th>Age</th><th>Size</th><th>Price</th><th>Stock</th><th>Edit</th><th>Delete</th></tr>
+    <div class="overflow-x"><table class="wide"><tr><th>Photo</th><th>Product</th><th>Categories</th><th>Age</th><th>Size</th><th>Price</th><th>Stock</th><th>Edit</th><th>Delete</th></tr>
     ${products.map(p=>`<tr><td>${p.imageUrl?`<img src="${p.imageUrl}" style="width:36px;height:36px;object-fit:cover;border-radius:6px;">`:p.emoji}</td><td>${p.name}</td><td>${p.category||''}</td><td>${p.ageGroup||''}</td><td>${p.size||''}</td><td>৳${p.price}</td><td class="${p.stock<=5?'pstock low':''}">${p.stock}</td>
       <td><button class="smallbtn edit" onclick="editProduct('${p.id}')">✏️ এডিট</button></td><td><button class="smallbtn del" onclick="deleteProduct('${p.id}')">🗑️ ডিলিট</button></td></tr>`).join('')}
     </table></div>`;
   } else if(adminTab==='orders'){
-    body.innerHTML = orders.length ? `<div class="overflow-x"><table><tr><th>অর্ডার ID</th><th>কাস্টমার</th><th>মোট</th><th>স্ট্যাটাস</th><th></th></tr>
+    body.innerHTML = orders.length ? `<div class="overflow-x"><table class="wide"><tr><th>অর্ডার ID</th><th>কাস্টমার</th><th>মোট</th><th>স্ট্যাটাস</th><th></th></tr>
     ${orders.map(o=>`<tr><td><small>${esc(o.id)}</small><br><small style="color:var(--muted)">${fmtDate(o.createdAt)}</small></td>
       <td>${esc(o.name)}<br><small>${esc(o.phone)}</small></td><td>৳${Number(o.total)||0}<br><small>${esc(o.pay)}</small></td>
       <td><select onchange="updateStatus('${esc(o.id)}',this.value)">${STATUSES.map(s=>`<option ${o.status===s?'selected':''}>${s}</option>`).join('')}</select>${receiptBadge(o)}</td>
@@ -793,6 +736,8 @@ function printMemo(id){
     .footer{text-align:center;margin-top:10px;}
     .footer .thanks{font-family:'Segoe UI',cursive;font-size:20px;color:#1e3a8a;font-weight:700;}
     .footer small{color:#6b7280;}
+    *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    @page{margin:10mm;}
     @media print{ body{background:#fff;padding:0;} .wrap{border-radius:0;} }
   </style></head>
   <body>
@@ -870,7 +815,7 @@ let visits = [];
 let visitsLoaded = false;
 async function loadVisits(){
   try{
-    const snap = await db.collection('visits').orderBy('at','desc').limit(1500).get();
+    const snap = await db.collection('visits').orderBy('at','desc').limit(1000).get();
     visits = snap.docs.map(d=>({id:d.id, ...d.data()}));
     visitsLoaded = true;
   }catch(e){
@@ -924,7 +869,7 @@ function renderVisitorsTab(body){
       <div class="stat"><div class="statnum">${weekV.length}</div><div class="statlabel">শেষ ৭ দিনের ভিজিট</div></div>
     </div>
     <button class="secondary" style="margin-bottom:14px" onclick="refreshVisits()">🔄 রিফ্রেশ</button>
-    ${visits.length>=1500 ? '<p class="note">সর্বশেষ ১৫০০টি রেকর্ড দেখানো হচ্ছে।</p>' : ''}
+    ${visits.length>=1000 ? '<p class="note">সর্বশেষ ১০০০টি রেকর্ড দেখানো হচ্ছে।</p>' : ''}
 
     <h3>🔗 কাকে লিংক দিলেন? আলাদা লিংক বানান</h3>
     <p class="note" style="margin:0 0 8px">প্রতিজনের নামে একটা করে লিংক বানিয়ে তাকে দিন। তাহলে নিচের "উৎস" তালিকায় দেখা যাবে কোন লিংক থেকে কতজন কতবার ঢুকেছে।</p>
@@ -938,7 +883,7 @@ function renderVisitorsTab(body){
     </table></div>
 
     <h3 style="margin-top:18px">ভিজিটর তালিকা (সর্বশেষ ১০০ জন)</h3>
-    <div class="overflow-x"><table><tr><th>ভিজিটর</th><th>উৎস</th><th>ডিভাইস</th><th>ভিজিট</th><th>প্রথম</th><th>শেষ</th></tr>
+    <div class="overflow-x"><table class="wide"><tr><th>ভিজিটর</th><th>উৎস</th><th>ডিভাইস</th><th>ভিজিট</th><th>প্রথম</th><th>শেষ</th></tr>
       ${peopleList.map(p=>`<tr>
         <td>${p.name ? `<b>${esc(p.name)}</b><br><small>${esc(p.phone)}</small>` : `Visitor #${esc(p.vid.slice(-4))}`}</td>
         <td>${esc(p.ref||'-')}</td><td>${esc(p.device||'-')}</td><td><b>${p.count}</b></td>

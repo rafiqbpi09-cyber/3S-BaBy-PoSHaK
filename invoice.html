@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Invoice</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A7%B8%3C/text%3E%3C/svg%3E">
+<meta name="theme-color" content="#e85d8a">
 <style>
   body{font-family:'Segoe UI',system-ui,sans-serif;background:#fdf6f0;color:#1f2937;margin:0;padding:20px;}
   .toolbar{max-width:760px;margin:0 auto 12px;display:flex;gap:8px;justify-content:flex-end;}
@@ -48,6 +50,8 @@
   .footer .thanks{font-size:20px;color:#1e3a8a;font-weight:700;}
   .footer small{color:#6b7280;}
   .cancelled{background:#ffe9e9;color:#c92a2a;font-weight:700;padding:10px 14px;border-radius:10px;margin-bottom:14px;text-align:center;}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  @page{margin:10mm;}
   @media print{ body{background:#fff;padding:0;} .toolbar{display:none;} .wrap{border-radius:0;} }
 </style>
 </head>
