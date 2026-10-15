@@ -157,6 +157,17 @@ function beep(){
     o.start(); setTimeout(()=>{ o.stop(); ctx.close(); }, 300);
   }catch(e){}
 }
+function showDataError(label, err){
+  console.error(label+' listener error', err);
+  let b = document.getElementById('dataErrorBanner');
+  if(!b){
+    b = document.createElement('div'); b.id = 'dataErrorBanner';
+    b.style.cssText = 'background:#c92a2a;color:#fff;padding:12px 16px;font-size:14px;line-height:1.7;';
+    document.querySelector('header').insertAdjacentElement('afterend', b);
+  }
+  const email = (auth.currentUser && auth.currentUser.email) || '';
+  b.innerHTML = `⚠️ <b>${esc(label)} লোড হয়নি</b> (${esc((err && (err.code || err.message)) || 'error')}).<br>সম্ভাব্য কারণ: Firestore Rules-এ Admin ইমেইল মেলেনি। আপনি এই ইমেইলে লগইন করেছেন: <b>${esc(email)}</b><br>Rules-এর <code>isAdmin()</code> অংশে হুবহু এই ইমেইল (ছোট হাতের অক্ষরে, ভুল বানান ছাড়া) আছে কিনা দেখুন। তারপর Publish করে এই পেজ রিফ্রেশ করুন।`;
+}
 function updateNotifBadge(){
   const bell = document.getElementById('notifBell'); if(!bell) return;
   const count = orders.filter(o=>o.status==='Pending').length;
@@ -226,6 +237,7 @@ function notifyNewOrder(o){
 }
 auth.onAuthStateChanged(u=>{
   isAdmin = !!u;
+  if(!u){ const eb = document.getElementById('dataErrorBanner'); if(eb) eb.remove(); }
   if(u && !unsubOrders){
     if('Notification' in window && Notification.permission==='default'){ Notification.requestPermission(); }
     firstOrderLoad = true;
@@ -245,21 +257,21 @@ auth.onAuthStateChanged(u=>{
       updateNotifBadge();
       if(isAdmin && (adminTab==='orders'||adminTab==='analytics')) renderAdminBody();
       if(isAdmin && adminTab==='memo' && memoSubTab==='online') fillMemoList();
-    });
+    }, err=>showDataError('অর্ডার', err));
   }
   if(!u && unsubOrders){ unsubOrders(); unsubOrders = null; orders = []; updateNotifBadge(); }
   if(u && !unsubMemos){
     unsubMemos = db.collection('memos').orderBy('createdAt','desc').onSnapshot(snap=>{
       memos = snap.docs.map(d=>({id:d.id, ...d.data()}));
       if(isAdmin && adminTab==='memo') renderMemoTab(document.getElementById('adminBody'));
-    });
+    }, err=>showDataError('মেমো', err));
   }
   if(!u && unsubMemos){ unsubMemos(); unsubMemos = null; memos = []; }
   if(u && !unsubOffers){
     unsubOffers = db.collection('offers').orderBy('createdAt','desc').onSnapshot(snap=>{
       offers = snap.docs.map(d=>({id:d.id, ...d.data()}));
       if(isAdmin && adminTab==='offers') renderAdminBody();
-    });
+    }, err=>showDataError('অফার', err));
   }
   if(!u && unsubOffers){ unsubOffers(); unsubOffers = null; offers = []; }
   renderAdmin();
@@ -290,6 +302,7 @@ function renderAdmin(){
     return;
   }
   el.innerHTML = `
+    <p class="note" style="margin:0 0 8px">লগইন: <b>${esc((auth.currentUser && auth.currentUser.email) || '')}</b></p>
     <div class="subtabs">
       <button class="${adminTab==='products'?'active':''}" onclick="setAdminTab('products')">📦 প্রোডাক্ট</button>
       <button class="${adminTab==='orders'?'active':''}" onclick="setAdminTab('orders')">🧾 অর্ডার</button>
