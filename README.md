@@ -41,14 +41,16 @@ service cloud.firestore {
             && request.resource.data.customerConfirmedAt == request.time
             && !('customerConfirmed' in resource.data));
       allow create: if doc.matches('BP-[A-Z0-9]{8}')
-        && request.resource.data.keys().hasOnly(['name','phone','addr','pay','items','deliveryArea','deliveryCharge','total','status','history','createdAt'])
+        && request.resource.data.keys().hasOnly(['name','phone','addr','pay','items','deliveryArea','deliveryCharge','total','status','history','createdAt','trxId'])
         && request.resource.data.status == 'Pending'
         && request.resource.data.createdAt == request.time
         && request.resource.data.name is string && request.resource.data.name.size() < 100
         && request.resource.data.phone is string && request.resource.data.phone.size() < 20
         && request.resource.data.addr is string && request.resource.data.addr.size() < 400
         && request.resource.data.total is number
-        && request.resource.data.items is list && request.resource.data.items.size() <= 50;
+        && request.resource.data.items is list && request.resource.data.items.size() <= 50
+        && (request.resource.data.pay == 'Cash on Delivery' || ('trxId' in request.resource.data))
+        && (!('trxId' in request.resource.data) || (request.resource.data.trxId is string && request.resource.data.trxId.size() >= 5 && request.resource.data.trxId.size() <= 40));
     }
 
     match /memos/{doc} {

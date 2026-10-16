@@ -511,7 +511,7 @@ function editOrder(id){
   const items = (o.items||[]).map(i=>`<li>${esc(i.name)} × ${Number(i.qty)||0} = ৳${(Number(i.price)||0)*(Number(i.qty)||0)}</li>`).join('');
   showSheet(`<button class="close" onclick="closeSheet()">✕</button>
     <h2>অর্ডার ${esc(o.id)}</h2>
-    <p style="font-size:13px;line-height:1.6"><b>${esc(o.name)}</b> · ${esc(o.phone)}<br>📍 ${esc(o.addr)}<br>💳 ${esc(o.pay)} · মোট ৳${Number(o.total)||0}<br><small>${fmtDate(o.createdAt)}</small></p>
+    <p style="font-size:13px;line-height:1.6"><b>${esc(o.name)}</b> · ${esc(o.phone)}<br>📍 ${esc(o.addr)}<br>💳 ${esc(o.pay)} · মোট ৳${Number(o.total)||0}${o.trxId?`<br>🔖 <b>Transaction ID: ${esc(o.trxId)}</b>`:''}<br><small>${fmtDate(o.createdAt)}</small></p>
     ${o.customerConfirmed ? `<p style="background:#e7f8ef;color:#0e9f6e;font-weight:700;padding:8px 12px;border-radius:8px;font-size:13px">✅ কাস্টমার প্রোডাক্ট রিসিভ নিশ্চিত করেছেন (${fmtDate(o.customerConfirmedAt)})</p>` : ((o.status==='Shipped'||o.status==='Delivered') ? `<p style="background:#fff3cd;color:#856404;padding:8px 12px;border-radius:8px;font-size:13px">⏳ কাস্টমার এখনো রিসিভ নিশ্চিত করেননি</p>` : '')}
     <ul class="features-list">${items}</ul>
     <label>স্ট্যাটাস</label>

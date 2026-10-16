@@ -183,7 +183,7 @@ async function main(){
       <div class="grand"><span>Grand Total</span><span>৳${grand.toFixed(2)}</span></div>
     </div>
     <div class="paycards">
-      <div class="c pc1"><b>Payment Method</b><br>${esc(o.pay||'-')}</div>
+      <div class="c pc1"><b>Payment Method</b><br>${esc(o.pay||'-')}${o.trxId?`<br><small>TrxID: ${esc(o.trxId)}</small>`:''}</div>
       <div class="c pc2"><b>Paid</b><br>৳${paid.toFixed(2)}</div>
       <div class="c pc3"><b>Due</b><br>৳${due.toFixed(2)}</div>
     </div>
