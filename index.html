@@ -38,6 +38,22 @@ main{max-width:1680px;margin:0 auto;padding:16px 24px 90px;}
 .pprice{color:var(--pink-dark);font-weight:700;}
 .pstock{font-size:12px;color:var(--muted);}
 .pstock.low{color:#d9534f;font-weight:600;}
+.hero{position:relative;overflow:hidden;border-radius:14px;margin-bottom:14px;box-shadow:var(--shadow);background:var(--card);}
+.herotrack{display:flex;will-change:transform;}
+.heroslide{flex:0 0 100%;position:relative;aspect-ratio:8/3;max-height:380px;}
+.heroslide img{width:100%;height:100%;object-fit:cover;display:block;-webkit-user-drag:none;user-select:none;}
+.herocap{position:absolute;left:0;right:0;bottom:0;padding:22px 22px 18px;color:#fff;font-weight:800;font-size:20px;background:linear-gradient(transparent,rgba(0,0,0,.6));}
+.heroarrow{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.88);border:none;width:38px;height:38px;border-radius:50%;font-size:24px;line-height:1;cursor:pointer;z-index:2;color:#333;}
+.heroarrow.left{left:12px;}
+.heroarrow.right{right:12px;}
+.herodots{position:absolute;bottom:8px;left:0;right:0;display:flex;justify-content:center;gap:6px;z-index:2;}
+.herodots span{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.6);cursor:pointer;transition:all .25s;}
+.herodots span.on{background:#fff;width:22px;border-radius:6px;}
+@media (max-width:700px){
+  .heroslide{aspect-ratio:16/9;}
+  .heroarrow{display:none;}
+  .herocap{font-size:14px;padding:16px 14px 20px;}
+}
 .cardbadge{position:absolute;left:0;top:0;z-index:1;padding:3px 9px;border-radius:0 0 8px 0;font-size:11px;font-weight:800;color:#fff;}
 .badge-off{background:var(--pink-dark);}
 .badge-new{background:#17a2b8;}
@@ -286,6 +302,60 @@ db.collection('products').onSnapshot(snap=>{
   if(!document.getElementById('storeView').classList.contains('hidden')) renderStore();
 });
 
+// ---------- HERO BANNER (moving slider) ----------
+let banners = [];
+let heroIdx = 0, heroTimer = null, heroPaused = false, heroSwiped = false;
+function bannerOrder(b){ return b.order == null ? 9999 : Number(b.order); }
+db.collection('banners').onSnapshot(snap=>{
+  banners = snap.docs.map(d=>({id:d.id, ...d.data()}))
+    .filter(b=>b.active!==false && /^https?:\/\//i.test(b.imageUrl||''))
+    .sort((a,b)=>bannerOrder(a)-bannerOrder(b));
+  heroIdx = 0;
+  renderHeroBanner();
+  startHeroTimer();
+}, err=>console.warn('banners listener error', err));
+function renderHeroBanner(){
+  const box = document.getElementById('heroBanner');
+  if(!box) return;
+  if(!banners.length){ box.innerHTML = ''; return; }
+  heroIdx = Math.min(heroIdx, banners.length-1);
+  box.innerHTML = `<div class="hero" onmouseenter="heroPaused=true" onmouseleave="heroPaused=false">
+    <div class="herotrack" id="heroTrack">${banners.map((b,i)=>`<div class="heroslide" onclick="heroClick(${i})" style="cursor:${(b.productId||b.category)?'pointer':'default'}"><img src="${esc2(b.imageUrl)}" alt="${esc2(b.title||'Banner')}" draggable="false" ${i>0?'loading="lazy"':''}>${b.title?`<div class="herocap">${esc2(b.title)}</div>`:''}</div>`).join('')}</div>
+    ${banners.length>1 ? `<button class="heroarrow left" aria-label="আগের" onclick="heroGo(-1)">‹</button><button class="heroarrow right" aria-label="পরের" onclick="heroGo(1)">›</button><div class="herodots" id="heroDots">${banners.map((_,i)=>`<span onclick="heroSet(${i})"></span>`).join('')}</div>` : ''}
+  </div>`;
+  applyHero(false);
+  attachHeroSwipe();
+}
+function applyHero(animate){
+  const t = document.getElementById('heroTrack'); if(!t) return;
+  t.style.transition = animate ? 'transform .6s ease' : 'none';
+  t.style.transform = 'translateX(-' + (heroIdx*100) + '%)';
+  document.querySelectorAll('#heroDots span').forEach((d,i)=>d.classList.toggle('on', i===heroIdx));
+}
+function heroSet(i){ if(!banners.length) return; heroIdx = (i + banners.length) % banners.length; applyHero(true); }
+function heroGo(d){ heroSet(heroIdx + d); }
+function startHeroTimer(){
+  if(heroTimer) clearInterval(heroTimer);
+  if(banners.length > 1) heroTimer = setInterval(()=>{ if(!heroPaused && !document.hidden) heroGo(1); }, 3500);
+}
+function heroClick(i){
+  if(heroSwiped) return;
+  const b = banners[i]; if(!b) return;
+  if(b.productId && products.find(p=>p.id===b.productId)){ showProductDetail(b.productId); return; }
+  if(b.category) setFilterCat(b.category);
+}
+function attachHeroSwipe(){
+  const el = document.querySelector('.hero'); if(!el) return;
+  let x0 = null;
+  el.addEventListener('touchstart', e=>{ x0 = e.touches[0].clientX; heroPaused = true; }, {passive:true});
+  el.addEventListener('touchend', e=>{
+    heroPaused = false;
+    if(x0 === null) return;
+    const dx = e.changedTouches[0].clientX - x0; x0 = null;
+    if(Math.abs(dx) > 40){ heroSwiped = true; setTimeout(()=>{ heroSwiped = false; }, 350); heroGo(dx < 0 ? 1 : -1); }
+  }, {passive:true});
+}
+
 // ---------- LIVE OFFERS ----------
 let offers = [];
 let offerIdx = 0;
@@ -367,6 +437,7 @@ function renderStore(){
       <span>${label}</span>${cnt!=null?`<span class="cnt">${cnt}</span>`:''}
     </div>`;
   el.innerHTML = `
+    <div id="heroBanner"></div>
     <div id="offerWidget"></div>
     <div class="storelayout">
       <div class="sidebar" id="sidebarPanel">
@@ -402,6 +473,7 @@ function renderStore(){
       </div>
     </div>`;
   renderProductGrid();
+  renderHeroBanner();
   renderOfferWidget();
 }
 function renderProductGrid(){

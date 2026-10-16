@@ -146,6 +146,8 @@ let memos = [];
 let unsubMemos = null;
 let offers = [];
 let unsubOffers = null;
+let banners = [];
+let unsubBanners = null;
 let unsubOrders = null;
 let firstOrderLoad = true;
 function beep(){
@@ -274,6 +276,13 @@ auth.onAuthStateChanged(u=>{
     }, err=>showDataError('অফার', err));
   }
   if(!u && unsubOffers){ unsubOffers(); unsubOffers = null; offers = []; }
+  if(u && !unsubBanners){
+    unsubBanners = db.collection('banners').onSnapshot(snap=>{
+      banners = snap.docs.map(d=>({id:d.id, ...d.data()}));
+      if(isAdmin && adminTab==='banners') renderAdminBody();
+    }, err=>showDataError('ব্যানার', err));
+  }
+  if(!u && unsubBanners){ unsubBanners(); unsubBanners = null; banners = []; }
   renderAdmin();
 });
 
@@ -310,6 +319,7 @@ function renderAdmin(){
       <button class="${adminTab==='memo'?'active':''}" onclick="setAdminTab('memo')">🧾 Memo</button>
       <button class="${adminTab==='offers'?'active':''}" onclick="setAdminTab('offers')">🎁 অফার</button>
       <button class="${adminTab==='visitors'?'active':''}" onclick="setAdminTab('visitors')">👥 ভিজিটর</button>
+      <button class="${adminTab==='banners'?'active':''}" onclick="setAdminTab('banners')">🖼️ ব্যানার</button>
     </div>
     <div id="adminBody"></div>`;
   renderAdminBody();
@@ -344,6 +354,8 @@ function renderAdminBody(){
     renderOffersTab(body);
   } else if(adminTab==='visitors'){
     renderVisitorsTab(body);
+  } else if(adminTab==='banners'){
+    renderBannersTab(body);
   }
 }
 function startOfToday(){ const d=new Date(); d.setHours(0,0,0,0); return d.getTime(); }
@@ -823,6 +835,91 @@ function printMemo(id){
   </body></html>`);
   w.document.close();
 }
+// ---------- BANNERS ----------
+const safeImg = u => /^https?:\/\//i.test(u||'') ? u : '';
+function bOrder(b){ return b.order == null ? 9999 : Number(b.order); }
+function bMs(b){ return b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0; }
+function sortedBanners(){ return banners.slice().sort((a,b)=>bOrder(a)-bOrder(b) || bMs(a)-bMs(b)); }
+function nextBannerOrder(){ return banners.reduce((m,b)=>Math.max(m, Number(b.order)||0), 0) + 1; }
+function renderBannersTab(body){
+  const list = sortedBanners();
+  body.innerHTML = `
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+      <button class="primary" onclick="editBanner(null)">+ নতুন ব্যানার</button>
+      <button class="secondary" onclick="bulkAddBanners()">📥 একসাথে অনেক ছবি যোগ করুন</button>
+    </div>
+    <p class="note" style="margin:0 0 10px">কাস্টমার পেজের একদম উপরে এই ছবিগুলো ব্যানার হয়ে ৩.৫ সেকেন্ড পর পর নিজে নিজে সরে সরে দেখাবে। শুধু Active ছবিগুলো দেখায়। সবচেয়ে ভালো ছবির মাপ ১৬০০×৬০০ পিক্সেল (প্রস্থ:উচ্চতা প্রায় ৮:৩)। ছবির লিংক postimages.org থেকে "Direct link" নিন। ⬆️⬇️ বাটনে ছবির ক্রম বদলানো যায়।</p>
+    ${list.length ? list.map((b,i)=>`<div class="ordercard" style="cursor:default">
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+          <img src="${esc(safeImg(b.imageUrl))}" alt="" style="width:150px;height:56px;object-fit:cover;border-radius:8px;background:var(--border)">
+          <div style="flex:1;min-width:150px"><b>${i+1}. ${esc(b.title||'(ক্যাপশন নেই)')}</b> ${b.active!==false?'<span class="stbadge">Active</span>':'<span class="stbadge Cancelled">Inactive</span>'}<br>
+            <small>${b.productId ? '🛍️ '+esc((products.find(p=>p.id===b.productId)||{}).name||'(প্রোডাক্ট পাওয়া যায়নি)') : (b.category ? '🔗 '+esc(b.category) : 'কোনো লিংক নেই')}</small></div>
+          <div style="flex-shrink:0">
+            <button class="smallbtn edit" ${i===0?'disabled':''} onclick="moveBanner('${b.id}',-1)">⬆️</button>
+            <button class="smallbtn edit" ${i===list.length-1?'disabled':''} onclick="moveBanner('${b.id}',1)">⬇️</button>
+            <button class="smallbtn edit" onclick="editBanner('${b.id}')">✏️ এডিট</button>
+            <button class="smallbtn del" onclick="deleteBanner('${b.id}')">🗑️ ডিলিট</button>
+          </div>
+        </div></div>`).join('') : '<p class="note">এখনো কোনো ব্যানার যোগ করা হয়নি।</p>'}`;
+}
+function editBanner(id){
+  const b = id ? banners.find(x=>x.id===id) : {imageUrl:'',title:'',productId:'',category:'',active:true};
+  showSheet(`<button class="close" onclick="closeSheet()">✕</button><h2>${id?'ব্যানার এডিট':'নতুন ব্যানার'}</h2>
+    <label>ছবির লিংক (Direct link)</label>
+    <a href="https://postimages.org" target="_blank" class="secondary" style="display:inline-block;text-decoration:none;padding:8px 12px;font-size:13px;margin-bottom:8px;">📤 postimages.org খুলুন (ছবি আপলোড করে "Direct link" কপি করুন)</a>
+    <input id="bnImg" value="${esc(b.imageUrl||'')}" placeholder="https://i.postimg.cc/.../banner.jpg">
+    <label>ক্যাপশন (ঐচ্ছিক, ছবির নিচে লেখা দেখাবে)</label><input id="bnTitle" value="${esc(b.title||'')}" placeholder="যেমন: ঈদ কালেকশন এসে গেছে">
+    <label>ক্লিক করলে কোন প্রোডাক্ট খুলবে (ঐচ্ছিক)</label>
+    <select id="bnProduct"><option value="">— কোনো প্রোডাক্ট না —</option>${products.map(p=>`<option value="${p.id}" ${b.productId===p.id?'selected':''}>${esc(p.name)}</option>`).join('')}</select>
+    <label>অথবা কোন ক্যাটাগরিতে যাবে (ঐচ্ছিক)</label>
+    <select id="bnCat"><option value="">— কোনো ক্যাটাগরি না —</option>${CATEGORIES.map(c=>`<option ${b.category===c?'selected':''}>${c}</option>`).join('')}</select>
+    <label style="display:flex;align-items:center;gap:8px;"><input type="checkbox" id="bnActive" style="width:auto;margin:0;" ${b.active!==false?'checked':''}> Active (কাস্টমার পেজে দেখাবে)</label>
+    <button class="primary" style="width:100%" onclick="saveBanner('${id||''}')">সেভ করুন</button>`);
+}
+async function saveBanner(id){
+  const imageUrl = document.getElementById('bnImg').value.trim();
+  if(!safeImg(imageUrl)){ alert('ছবির লিংক http:// বা https:// দিয়ে শুরু হতে হবে'); return; }
+  const data = {
+    imageUrl,
+    title: document.getElementById('bnTitle').value.trim().slice(0,120),
+    productId: document.getElementById('bnProduct').value,
+    category: document.getElementById('bnCat').value,
+    active: document.getElementById('bnActive').checked
+  };
+  if(id){ await db.collection('banners').doc(id).update(data); }
+  else { data.order = nextBannerOrder(); data.createdAt = firebase.firestore.FieldValue.serverTimestamp(); await db.collection('banners').add(data); }
+  closeSheet();
+}
+function bulkAddBanners(){
+  showSheet(`<button class="close" onclick="closeSheet()">✕</button><h2>📥 একসাথে অনেক ছবি</h2>
+    <p class="note">প্রতি লাইনে একটা করে ছবির Direct link পেস্ট করুন। সবগুলো ব্যানার হিসেবে যোগ হবে (পরে আলাদা করে ক্যাপশন/লিংক এডিট করা যাবে)।</p>
+    <textarea id="bnBulk" rows="8" placeholder="https://i.postimg.cc/.../1.jpg&#10;https://i.postimg.cc/.../2.jpg"></textarea>
+    <button class="primary" style="width:100%" onclick="saveBulkBanners()">সব যোগ করুন</button>`);
+}
+async function saveBulkBanners(){
+  const urls = document.getElementById('bnBulk').value.split(/\s+/).map(x=>x.trim()).filter(x=>safeImg(x));
+  if(!urls.length){ alert('কমপক্ষে একটা সঠিক ছবির লিংক দিন'); return; }
+  let ord = nextBannerOrder();
+  for(const u of urls){
+    await db.collection('banners').add({ imageUrl:u, title:'', productId:'', category:'', active:true, order:ord++, createdAt:firebase.firestore.FieldValue.serverTimestamp() });
+  }
+  closeSheet();
+  alert(urls.length + 'টি ব্যানার যোগ হয়েছে');
+}
+async function moveBanner(id, dir){
+  const list = sortedBanners();
+  const i = list.findIndex(b=>b.id===id), j = i + dir;
+  if(i < 0 || j < 0 || j >= list.length) return;
+  [list[i], list[j]] = [list[j], list[i]];
+  for(let k=0; k<list.length; k++){
+    if(list[k].order !== k+1) await db.collection('banners').doc(list[k].id).update({ order:k+1 });
+  }
+}
+async function deleteBanner(id){
+  if(!confirm('এই ব্যানারটি ডিলিট করবেন?')) return;
+  await db.collection('banners').doc(id).delete();
+}
+
 // ---------- VISITORS ----------
 let visits = [];
 let visitsLoaded = false;

@@ -16,10 +16,10 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // শুধু আপনার Admin ইমেইল। নিচের YOUR_ADMIN_EMAIL এর জায়গায় আপনার Admin লগইন ইমেইল ছোট হাতের অক্ষরে বসান
+    // শুধু আপনার Admin ইমেইল। ইমেইল বদলালে এখানেও (ছোট হাতের অক্ষরে) বদলান
     function isAdmin() {
       return request.auth != null
-        && request.auth.token.email == 'YOUR_ADMIN_EMAIL';
+        && request.auth.token.email == 'rafiqbpi09@gmail.com';
     }
 
     match /products/{doc} {
@@ -60,6 +60,11 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    match /banners/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
     match /visits/{doc} {
       allow create: if request.resource.data.keys().hasOnly(['vid','at','device','ref','type','name','phone'])
         && request.resource.data.vid is string && request.resource.data.vid.size() <= 30
@@ -94,6 +99,6 @@ service cloud.firestore {
 
 ## Firebase নিরাপত্তা চেকলিস্ট (একবার করে নিন)
 1. **নতুন অ্যাকাউন্ট খোলা বন্ধ করুন:** Firebase Console → Authentication → Settings → User actions → "Enable create (sign-up)" বন্ধ করুন। নাহলে যে কেউ আপনার সাইটের পাবলিক API key দিয়ে নিজে অ্যাকাউন্ট খুলে ফেলতে পারে।
-2. **Rules এ Admin ইমেইল বসান:** উপরের Rules এ `YOUR_ADMIN_EMAIL` এর জায়গায় আপনার Admin লগইন ইমেইল (ছোট হাতের অক্ষরে) বসিয়ে Publish করুন। তারপর Admin পেজে একবার লগইন করে দেখুন সব ঠিক আছে কিনা।
+2. **Rules এ Admin ইমেইল:** উপরের Rules এ আপনার Admin ইমেইল (`rafiqbpi09@gmail.com`) বসানো আছে। Admin ইমেইল বদলালে এখানেও ছোট হাতের অক্ষরে বদলে Publish করুন।
 3. **API key সীমিত করুন:** Google Cloud Console → APIs & Services → Credentials → Browser key → Application restrictions: HTTP referrers → `https://rafiqbpi09-cyber.github.io/*`।
 4. **খরচ নজরে রাখুন:** Firebase Console → Usage এ দেখুন। ফ্রি (Spark) প্ল্যানে দিনে ৫০,০০০ রিড ও ২০,০০০ রাইট ফ্রি। প্রতিটা ভিজিটে সব প্রোডাক্ট পড়া হয়, তাই প্রোডাক্ট বেশি হলে ভিজিটর বাড়লে সীমা পার হতে পারে।
