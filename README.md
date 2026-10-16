@@ -65,6 +65,11 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    match /ticker/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
     match /visits/{doc} {
       allow create: if request.resource.data.keys().hasOnly(['vid','at','device','ref','type','name','phone'])
         && request.resource.data.vid is string && request.resource.data.vid.size() <= 30

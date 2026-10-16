@@ -148,6 +148,8 @@ let offers = [];
 let unsubOffers = null;
 let banners = [];
 let unsubBanners = null;
+let ticker = [];
+let unsubTicker = null;
 let unsubOrders = null;
 let firstOrderLoad = true;
 function beep(){
@@ -283,6 +285,13 @@ auth.onAuthStateChanged(u=>{
     }, err=>showDataError('ব্যানার', err));
   }
   if(!u && unsubBanners){ unsubBanners(); unsubBanners = null; banners = []; }
+  if(u && !unsubTicker){
+    unsubTicker = db.collection('ticker').onSnapshot(snap=>{
+      ticker = snap.docs.map(d=>({id:d.id, ...d.data()}));
+      if(isAdmin && adminTab==='ticker') renderAdminBody();
+    }, err=>showDataError('নোটিশ বার', err));
+  }
+  if(!u && unsubTicker){ unsubTicker(); unsubTicker = null; ticker = []; }
   renderAdmin();
 });
 
@@ -320,6 +329,7 @@ function renderAdmin(){
       <button class="${adminTab==='offers'?'active':''}" onclick="setAdminTab('offers')">🎁 অফার</button>
       <button class="${adminTab==='visitors'?'active':''}" onclick="setAdminTab('visitors')">👥 ভিজিটর</button>
       <button class="${adminTab==='banners'?'active':''}" onclick="setAdminTab('banners')">🖼️ ব্যানার</button>
+      <button class="${adminTab==='ticker'?'active':''}" onclick="setAdminTab('ticker')">📢 নোটিশ বার</button>
     </div>
     <div id="adminBody"></div>`;
   renderAdminBody();
@@ -356,6 +366,8 @@ function renderAdminBody(){
     renderVisitorsTab(body);
   } else if(adminTab==='banners'){
     renderBannersTab(body);
+  } else if(adminTab==='ticker'){
+    renderTickerTab(body);
   }
 }
 function startOfToday(){ const d=new Date(); d.setHours(0,0,0,0); return d.getTime(); }
@@ -918,6 +930,59 @@ async function moveBanner(id, dir){
 async function deleteBanner(id){
   if(!confirm('এই ব্যানারটি ডিলিট করবেন?')) return;
   await db.collection('banners').doc(id).delete();
+}
+
+// ---------- NOTICE TICKER (স্ক্রলিং নোটিশ বার) ----------
+function sortedTicker(){ return ticker.slice().sort((a,b)=>bOrder(a)-bOrder(b) || bMs(a)-bMs(b)); }
+function nextTickerOrder(){ return ticker.reduce((m,t)=>Math.max(m, Number(t.order)||0), 0) + 1; }
+function renderTickerTab(body){
+  const list = sortedTicker();
+  body.innerHTML = `
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+      <button class="primary" onclick="editTicker(null)">+ নতুন নোটিশ</button>
+    </div>
+    <p class="note" style="margin:0 0 10px">কাস্টমার পেজের হেডারের নিচে এই লেখাগুলো ডান দিক থেকে বাম দিকে একটানা চলতে থাকবে। একাধিক নোটিশ যোগ করলে নিচের ক্রমে একটার পর একটা দেখাবে। শুধু Active নোটিশগুলো দেখায়। ⬆️⬇️ বাটনে ক্রম বদলান। ইমোজি (🎉 🔥 🚚) ব্যবহার করতে পারেন।</p>
+    ${list.length ? list.map((t,i)=>`<div class="ordercard" style="cursor:default">
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+          <div style="flex:1;min-width:150px"><b>${i+1}.</b> ${esc(t.text||'')} ${t.active!==false?'<span class="stbadge">Active</span>':'<span class="stbadge Cancelled">Inactive</span>'}</div>
+          <div style="flex-shrink:0">
+            <button class="smallbtn edit" ${i===0?'disabled':''} onclick="moveTicker('${t.id}',-1)">⬆️</button>
+            <button class="smallbtn edit" ${i===list.length-1?'disabled':''} onclick="moveTicker('${t.id}',1)">⬇️</button>
+            <button class="smallbtn edit" onclick="editTicker('${t.id}')">✏️ এডিট</button>
+            <button class="smallbtn del" onclick="deleteTicker('${t.id}')">🗑️ ডিলিট</button>
+          </div>
+        </div></div>`).join('') : '<p class="note">এখনো কোনো নোটিশ যোগ করা হয়নি। নোটিশ না থাকলে কাস্টমার পেজে বারটি দেখাবে না।</p>'}`;
+}
+function editTicker(id){
+  const t = id ? ticker.find(x=>x.id===id) : {text:'', active:true};
+  showSheet(`<button class="close" onclick="closeSheet()">✕</button><h2>${id?'নোটিশ এডিট':'নতুন নোটিশ'}</h2>
+    <label>নোটিশ / অফারের লেখা (সর্বোচ্চ ২০০ অক্ষর)</label>
+    <textarea id="tkText" rows="3" maxlength="200" placeholder="যেমন: 🎉 ঈদ অফার! সব বেবি ড্রেসে ২০% ছাড়">${esc(t.text||'')}</textarea>
+    <label style="display:flex;align-items:center;gap:8px;"><input type="checkbox" id="tkActive" style="width:auto;margin:0;" ${t.active!==false?'checked':''}> Active (কাস্টমার পেজে দেখাবে)</label>
+    <button class="primary" style="width:100%" onclick="saveTicker('${id||''}')">সেভ করুন</button>`);
+}
+async function saveTicker(id){
+  const text = document.getElementById('tkText').value.replace(/\s+/g,' ').trim().slice(0,200);
+  if(!text){ alert('নোটিশের লেখা দিন'); return; }
+  const data = { text, active: document.getElementById('tkActive').checked };
+  try{
+    if(id){ await db.collection('ticker').doc(id).update(data); }
+    else { data.order = nextTickerOrder(); data.createdAt = firebase.firestore.FieldValue.serverTimestamp(); await db.collection('ticker').add(data); }
+    closeSheet();
+  }catch(e){ alert('সেভ করা যায়নি: '+e.message+'\n(Firestore Rules এ ticker অংশ Publish করেছেন কি?)'); }
+}
+async function moveTicker(id, dir){
+  const list = sortedTicker();
+  const i = list.findIndex(t=>t.id===id), j = i + dir;
+  if(i < 0 || j < 0 || j >= list.length) return;
+  [list[i], list[j]] = [list[j], list[i]];
+  for(let k=0; k<list.length; k++){
+    if(list[k].order !== k+1) await db.collection('ticker').doc(list[k].id).update({ order:k+1 });
+  }
+}
+async function deleteTicker(id){
+  if(!confirm('এই নোটিশটি ডিলিট করবেন?')) return;
+  await db.collection('ticker').doc(id).delete();
 }
 
 // ---------- VISITORS ----------
