@@ -188,6 +188,25 @@ th{background:var(--border);}
   .navicon small{display:none;}
   .navicons{gap:10px;}
 }
+/* ---------- Language switch ---------- */
+header h1{min-width:0;overflow:hidden;}
+.brandtext{min-width:0;}
+.bname{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.navicons{flex-shrink:0;}
+.langsw{display:inline-flex;align-items:center;background:rgba(255,255,255,.22);border-radius:999px;padding:2px;gap:2px;flex:0 0 auto;}
+.langsw button{border:none;background:transparent;color:#fff;font-weight:700;font-size:12px;line-height:1;padding:6px 10px;border-radius:999px;cursor:pointer;font-family:inherit;white-space:nowrap;}
+.langsw button.on{background:#fff;color:var(--pink-dark);box-shadow:0 1px 4px rgba(0,0,0,.18);}
+.langtoggle{display:none;border:1.5px solid rgba(255,255,255,.85);background:rgba(255,255,255,.18);color:#fff;font-weight:800;font-size:11px;line-height:1;padding:6px 8px;border-radius:999px;cursor:pointer;font-family:inherit;white-space:nowrap;flex:0 0 auto;}
+.sb-lang{display:none;}
+@media (max-width:700px){
+  header .langsw{display:none;}
+  .langtoggle{display:inline-block;}
+  .brandtext{font-size:clamp(12px,3.8vw,17px);}
+  .sb-lang{display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:8px 10px;margin:8px 0 4px;font-size:13px;font-weight:600;}
+  .sb-lang .langsw{background:var(--border);}
+  .sb-lang .langsw button{color:var(--text);}
+  .sb-lang .langsw button.on{background:var(--pink-dark);color:#fff;}
+}
 /* ---------- Mobile: filter menu behind ⋮ (three dots) ---------- */
 .searchrow{display:flex;gap:8px;align-items:flex-start;}
 .searchrow .searchbar{flex:1;min-width:0;}
@@ -317,6 +336,8 @@ header h1{display:flex;align-items:center;line-height:0;}
 <header>
   <h1 onclick="showView('store')" aria-label="Baby Poshak"><img class="brandlogo" src="data:image/jpeg;base64,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" alt="Baby Poshak" draggable="false"><span class="brandtext"><span class="b3s"><i>3</i><i>S</i></span><span class="bname">BaBy PoShAk</span></span></h1>
   <div class="navicons">
+    <div class="langsw" role="group" aria-label="Language / ভাষা"><button type="button" data-lang="bn" onclick="setLang('bn')">বাংলা</button><button type="button" data-lang="en" onclick="setLang('en')">EN</button></div>
+    <button type="button" class="langtoggle" id="langToggle" onclick="setLang(LANG==='bn'?'en':'bn')" aria-label="Language / ভাষা">EN</button>
     <div class="navicon" onclick="showStores()"><span class="ic">📍</span><small>Stores</small></div>
     <div class="navicon" onclick="openMyOrders()"><span class="ic">📦</span><small>Orders</small></div>
     <div class="navicon" onclick="openWishlist()"><span class="ic">♡</span><small>Wishlist</small><span class="navbadge" id="wishCount">0</span></div>
@@ -655,6 +676,7 @@ function renderStore(){
       <div class="sb-backdrop" id="sbBackdrop" onclick="toggleSidebar(false)"></div>
       <div class="sidebar" id="sidebarPanel">
         <div class="sb-head"><b>📋 মেনু</b><button type="button" onclick="toggleSidebar(false)" aria-label="বন্ধ করুন">✕</button></div>
+        <div class="sb-lang"><span>🌐 ভাষা / Language</span><div class="langsw"><button type="button" data-lang="bn" onclick="setLang('bn')">বাংলা</button><button type="button" data-lang="en" onclick="setLang('en')">English</button></div></div>
         <h4>Special Offers</h4>
         ${sidebarLink('All','সব প্রোডাক্ট')}
         ${sidebarLink('MegaDeal','🔥 Mega Deal')}
@@ -1165,6 +1187,243 @@ function trackOrderIdentity(name, phone){
 trackVisit();
 document.getElementById('waFab').href = 'https://wa.me/'+BUSINESS_PHONE;
 showView('store');
+</script>
+<script>
+/* =====================================================================
+   ভাষা পরিবর্তন (বাংলা ↔ English)
+   নতুন কোনো লেখা অনুবাদ করতে চাইলে নিচের PAIRS এ [বাংলা, English] জোড়া যোগ করুন।
+   প্রোডাক্টের নাম, অফার, নোটিশ ইত্যাদি অ্যাডমিনের লেখা অনুবাদ হয় না।
+   ===================================================================== */
+let LANG = 'bn';
+try{ const sv = localStorage.getItem('bp_lang'); if(sv==='en' || sv==='bn') LANG = sv; }catch(e){}
+
+const PAIRS = [
+  // ---- হেডার / ফুটার ----
+  ['স্টোর','Stores'],['অর্ডার','Orders'],['উইশলিস্ট','Wishlist'],['ব্যাগ','Bag'],
+  ['ছোট্ট সাজ ♥ বড় আনন্দ','Little Looks ♥ Big Happiness'],
+  ['যোগাযোগ','Contact Us'],['ফেসবুক :','Facebook :'],['ফোন :','Phone :'],
+  ['দ্রুত লিংক','Quick Links'],['শপ','Shop'],['আমার অর্ডার','My Orders'],['স্টোর তথ্য','Store Info'],
+  ['কপিরাইট ©','Copyright ©'],['3S Baby Poshak। সর্বস্বত্ব সংরক্ষিত।','3S Baby Poshak. All Rights Reserved.'],
+  // ---- মেনু / ফিল্টার ----
+  ['মেনু','Menu'],['বিশেষ অফার','Special Offers'],['সব প্রোডাক্ট','All Products'],
+  ['মেগা ডিল','Mega Deal'],['নতুন এসেছে','New Arrival'],['টপ সেলিং','Top Selling'],['ফ্রি ডেলিভারি','Free Delivery'],
+  ['ক্যাটাগরি','Category'],['বয়স','Age'],['সাইজ','Size'],['সব বয়স','All Ages'],['সব সাইজ','All Sizes'],
+  ['প্রোডাক্ট খুঁজুন','Search a product'],['মেনু খুলুন','Open menu'],['বন্ধ করুন','Close'],
+  ['আগের','Previous'],['পরের','Next'],['নোটিশ ও অফার','Notices & offers'],
+  ['সাব-ক্যাটাগরি:','Sub-category:'],['মুছুন','clear'],
+  ['নবজাতক','Newborn'],['মেয়ে','Girl'],['ছেলে','Boy'],['এক্সেসরিজ','Accessories'],
+  ['নিউবর্ন কালেকশন','Newborn Collection'],['বেবি বয়','Baby Boy'],['বেবি গার্ল','Baby Girl'],
+  ['রোম্পার ও বডিস্যুট','Romper & Bodysuit'],['বেবি নাইটওয়্যার','Baby Nightwear'],
+  ['সামার কালেকশন','Summer Collection'],['উইন্টার কালেকশন','Winter Collection'],
+  ['পার্টি ও অকেশন','Party & Occasion'],['ঐতিহ্যবাহী কালেকশন','Traditional Collection'],
+  ['বেবি গিফট সেট','Baby Gift Set'],['বেবি এক্সেসরিজ','Baby Accessories'],['ম্যাচিং কালেকশন','Matching Collection'],
+  // ---- প্রোডাক্ট ----
+  ['নতুন','New'],['স্টক শেষ','OUT OF STOCK'],['দ্রুত কিনুন','QUICK SHOP'],['স্টকে নেই','Out of stock'],
+  ['স্টক','Stock'],['স্টক আছে','In stock'],['কার্টে আছে','In cart'],
+  ['প্রধান বৈশিষ্ট্য:','Key Features:'],['কার্টে যোগ করুন','Add to Cart'],
+  ['এখনই অর্ডার করুন','Order Now'],['এখনই অর্ডার','Order Now'],
+  ['অর্ডারের জন্য কল করুন','Call For Order'],['WhatsApp-এ অর্ডার করুন','Order On WhatsApp'],
+  ['প্রোডাক্টটি শেয়ার করুন:','Share this product:'],['লিংক কপি','Copy Link'],
+  ['অফার দাম','Offer price'],['অফার','Offer'],['অর্ডার করতে ট্যাপ করুন','Tap to order'],
+  ['পরিমাণ','Quantity'],['এই প্রোডাক্টের সর্বোচ্চ স্টক আপনার কার্টে আছে।','The maximum available stock is already in your cart.'],
+  ['কার্ট দেখুন','View Cart'],['চেকআউট','Checkout'],['পুরো বিবরণ দেখুন','View full details'],
+  ['কার্টে যোগ করা হয়েছে','Added to cart'],
+  ['দুঃখিত, প্রোডাক্ট লোড করা যায়নি। ইন্টারনেট সংযোগ দেখে পেজটি রিফ্রেশ করুন।','Sorry, products could not be loaded. Please check your internet connection and refresh the page.'],
+  ['প্রোডাক্ট লোড হচ্ছে...','Loading products...'],['এই ফিল্টারে কোনো প্রোডাক্ট নেই।','No products found for this filter.'],
+  ['দুঃখিত, এই অফারের প্রোডাক্টটি এখন পাওয়া যাচ্ছে না।','Sorry, the product for this offer is not available right now.'],
+  // ---- উইশলিস্ট / স্টোর ----
+  ['দেখুন','View'],['আপনার Wishlist এ কিছু নেই।','Your wishlist is empty.'],
+  ['ঢাকা, বাংলাদেশ','Dhaka, Bangladesh'],
+  ['সঠিক ঠিকানা এখনো যোগ করা হয়নি — কোডে BUSINESS_PHONE এর কাছেই একটা ঠিকানা লিখে দিতে বলুন।','The exact address has not been added yet.'],
+  // ---- কার্ট / চেকআউট ----
+  ['আপনার কার্ট','Your Cart'],['কার্ট খালি।','Your cart is empty.'],['মোট','Total'],['চেকআউট করুন','Checkout'],
+  ['অর্ডার তথ্য দিন','Order Details'],['আপনার নাম','Your name'],['মোবাইল নম্বর','Mobile number'],['ঠিকানা','Address'],
+  ['পেমেন্ট মেথড','Payment method'],['ব্যাংক ট্রান্সফার','Bank transfer'],['ডেলিভারি এলাকা','Delivery area'],
+  ['ঢাকার ভিতরে','Inside Dhaka'],['ঢাকার বাইরে','Outside Dhaka'],
+  ['অর্ডার কনফার্ম করুন','Confirm Order'],
+  ['সাবটোটাল','Subtotal'],['ডেলিভারি চার্জ','Delivery charge'],['সর্বমোট','Grand total'],
+  ['অ্যাকাউন্টের নাম','Account Name'],['ব্রাঞ্চ','Branch'],['অ্যাকাউন্ট নম্বর','Account Number'],
+  ['অ্যাকাউন্ট নম্বর কপি করুন','Copy account number'],
+  ['এই অ্যাকাউন্টে মোট টাকা পাঠিয়ে ট্রান্সফারের স্ক্রিনশট/রেফারেন্স নম্বর আমাদের WhatsApp-এ পাঠান। পেমেন্ট যাচাই হলে অর্ডার কনফার্ম করা হবে।','Send the full amount to this account and WhatsApp us the transfer screenshot/reference number. Your order will be confirmed once the payment is verified.'],
+  ['ট্রানজেকশন ID','Transaction ID'],['(আবশ্যক)','(required)'],
+  ['টাকা পাঠানোর পর পাওয়া ট্রানজেকশন ID এখানে লিখুন। ট্রানজেকশন ID না দিলে অর্ডার কনফার্ম হবে না।','Enter the transaction ID you received after sending the money. Your order cannot be confirmed without it.'],
+  // ---- অর্ডার সফল ----
+  ['অর্ডার সফল হয়েছে!','Order placed successfully!'],['আপনার অর্ডার ID:','Your order ID:'],
+  ['এটা সংরক্ষণ করুন — এই ID দিয়ে যেকোনো সময় অর্ডার ট্র্যাক করতে পারবেন।','Please save this — you can track your order anytime with this ID.'],
+  ['অর্ডার ট্র্যাক করুন','Track Order'],['WhatsApp না খুললে এখানে চাপুন','Tap here if WhatsApp did not open'],['ঠিক আছে','OK'],
+  // ---- আমার অর্ডার / ট্র্যাকিং ----
+  ['অর্ডার ID দিয়ে খুঁজুন','Search by order ID'],['অর্ডারে দেওয়া মোবাইল নম্বর','Mobile number used in the order'],
+  ['খুঁজুন','Search'],['এই ডিভাইসের অর্ডার লোড হচ্ছে...','Loading orders from this device...'],
+  ['এই ডিভাইস থেকে এখনো কোনো অর্ডার দেওয়া হয়নি।','No orders have been placed from this device yet.'],
+  ['এই ডিভাইসের অর্ডার','Orders from this device'],['কোনো অর্ডার পাওয়া যায়নি।','No orders found.'],
+  ['অর্ডার পেয়েছি','Order received'],['কনফার্মড','Confirmed'],['কুরিয়ারে পাঠানো হয়েছে','Shipped with courier'],['ডেলিভারড','Delivered'],['বাতিল','Cancelled'],
+  ['লোড হচ্ছে...','Loading...'],['অর্ডারটি পাওয়া যায়নি।','Order not found.'],
+  ['এই অর্ডারটি বাতিল করা হয়েছে।','This order has been cancelled.'],
+  ['কুরিয়ার তথ্য','Courier information'],['কুরিয়ার','Courier'],['ট্র্যাকিং নম্বর','Tracking number'],
+  ['বর্তমান অবস্থা','Current status'],['সম্ভাব্য ডেলিভারি','Estimated delivery'],['কপি','Copy'],
+  ['কুরিয়ারের সাইটে ট্র্যাক করুন','Track on the courier site'],
+  ['কুরিয়ারের তথ্য এখনো যোগ হয়নি — অর্ডার পাঠানোর পর এখানে দেখা যাবে।','Courier details have not been added yet — they will appear here once your order is shipped.'],
+  ['আপনি প্রোডাক্ট রিসিভ নিশ্চিত করেছেন — ধন্যবাদ!','You have confirmed receiving the product — thank you!'],
+  ['প্রোডাক্ট কি হাতে পেয়েছেন?','Have you received the product?'],['হ্যাঁ, আমি প্রোডাক্ট পেয়েছি','Yes, I received the product'],
+  ['সমস্যা আছে? WhatsApp এ জানান','Any problem? Let us know on WhatsApp'],
+  ['অর্ডার সামারি','Order summary'],['মেমো / ইনভয়েস দেখুন','View memo / invoice'],['রিফ্রেশ','Refresh'],
+  ['সাহায্য দরকার? WhatsApp','Need help? WhatsApp'],
+  // ---- মেসেজ (alert / confirm) ----
+  ['অ্যাকাউন্ট নম্বর কপি হয়েছে','Account number copied'],['লিংক কপি হয়েছে!','Link copied!'],['কপি হয়েছে','Copied'],
+  ['আপনার নাম দিন','Please enter your name'],
+  ['সঠিক মোবাইল নম্বর দিন (যেমন 01712345678)','Please enter a valid mobile number (e.g. 01712345678)'],
+  ['ডেলিভারির ঠিকানা দিন','Please enter your delivery address'],
+  ['ট্রানজেকশন ID দিন — পেমেন্টের ট্রানজেকশন ID না দিলে অর্ডার কনফার্ম হবে না।','Please enter the transaction ID — your order cannot be confirmed without it.'],
+  ['ট্রানজেকশন ID সঠিক নয় — ৫ থেকে ৪০ অক্ষর, শুধু ইংরেজি অক্ষর ও সংখ্যা দিন।','The transaction ID looks invalid — use 5 to 40 characters, English letters and numbers only.'],
+  ['কার্ট খালি','Your cart is empty'],
+  ['দুঃখিত, কার্টের কিছু প্রোডাক্টের স্টক কমে গেছে, কার্ট আপডেট করা হলো — আবার চেক করে অর্ডার কনফার্ম করুন।','Sorry, stock for some items in your cart has changed. Your cart was updated — please review it and confirm your order again.'],
+  ['অর্ডার পাঠানো যায়নি, আবার চেষ্টা করুন','Could not place the order, please try again'],
+  ['সঠিক অর্ডার ID (BP-XXXXXXXX) ও মোবাইল নম্বর দিন','Please enter a valid order ID (BP-XXXXXXXX) and mobile number'],
+  ['অর্ডারটি পাওয়া যায়নি। ID ও মোবাইল নম্বর আবার দেখুন।','Order not found. Please check the ID and mobile number.'],
+  ['আপনি কি নিশ্চিত যে প্রোডাক্ট হাতে পেয়েছেন?','Are you sure you have received the product?'],
+  ['ধন্যবাদ! আপনার রিসিভ নিশ্চিত হয়েছে।','Thank you! Your receipt has been confirmed.'],
+  ['নিশ্চিত করা যায়নি, একটু পরে আবার চেষ্টা করুন বা WhatsApp এ জানান।','Could not confirm. Please try again shortly or let us know on WhatsApp.']
+];
+
+const MAP = {};
+PAIRS.forEach(p=>{ if(!(p[1] in MAP)) MAP[p[1]] = p; MAP[p[0]] = p; });
+
+// প্যাটার্ন (সংখ্যা/নাম সহ লেখার জন্য): bn = বাংলায় নেওয়ার নিয়ম (উৎস ইংরেজি), en = ইংরেজিতে নেওয়ার নিয়ম (উৎস বাংলা)
+const PAT = [
+  {re:/^(\d+) পিস$/, en:m=>m[1]+' pcs'},
+  {re:/^(\d+)টি আইটেম$/, en:m=>m[1]+' item(s)'},
+  {re:/^(.+?) \(ডেলিভারি চার্জ ৳(\d+)\)$/, en:m=>T(m[1])+' (Delivery charge ৳'+m[2]+')'},
+  {re:/^ডেলিভারি চার্জ \((.+?)\)([\s\S]*)$/, en:m=>'Delivery charge ('+T(m[1])+')'+m[2]},
+  {re:/^Home \/ Shop(?: \/ (.+))?$/, bn:m=>'হোম / শপ'+(m[1]?' / '+T(m[1]):'')},
+  {re:/^Size (\S+)$/, bn:m=>'সাইজ '+m[1]},
+  {re:/^(.+) ট্রানজেকশন ID \/ রেফারেন্স নম্বর$/, en:m=>m[1]+' transaction ID / reference number'},
+  {re:/^কপি করা যায়নি, নম্বরটি নিজে কপি করুন: (.+)$/, en:m=>'Could not copy — please copy the number yourself: '+m[1]},
+  {re:/^দুঃখিত, এই প্রোডাক্টের স্টকে মাত্র (\d+) পিস আছে, আর যোগ করা যাবে না।$/, en:m=>'Sorry, only '+m[1]+' pcs of this product are in stock, so no more can be added.'},
+  {re:/^স্টকে মাত্র (\d+) পিস আছে, তাই (\d+) পিস কার্টে যোগ করা হলো।$/, en:m=>'Only '+m[1]+' pcs in stock, so '+m[2]+' pcs were added to your cart.'},
+  {re:/^স্টকে আর মাত্র (\d+) পিস যোগ করা যাবে।$/, en:m=>'Only '+m[1]+' more pcs can be added (stock limit).'},
+  {re:/^স্টকে মাত্র (\d+) পিস আছে।$/, en:m=>'Only '+m[1]+' pcs in stock.'},
+  {re:/^স্টকে মাত্র (\d+) পিস আছে, আর বাড়ানো যাবে না।$/, en:m=>'Only '+m[1]+' pcs in stock — you cannot increase the quantity further.'}
+];
+
+const SYM_PRE = /^[\s\u2190-\u21FF\u2600-\u27BF\u2B00-\u2BFF\u{1F000}-\u{1FAFF}\uFE0F\u200D]+/u;
+const SYM_SUF = /[\s\u2190-\u21FF\uFE0F]+$/u;
+
+function T(x){ return trCore(x, LANG); }
+function trCore2(s, lang){
+  const idx = lang==='bn' ? 0 : 1;
+  if(MAP[s]) return MAP[s][idx];
+  for(const p of PAT){
+    const fn = lang==='bn' ? p.bn : p.en;
+    if(!fn) continue;
+    const m = s.match(p.re);
+    if(m) return fn(m);
+  }
+  if(s.indexOf(' · ') > -1){
+    const parts = s.split(' · ');
+    const out = parts.map(x=>trCore(x, lang));
+    if(out.join(' · ') !== s) return out.join(' · ');
+  }
+  const lm = s.match(/^([^:：]{1,40}?)(\s*[:：]\s*)([\s\S]*)$/);
+  if(lm && MAP[lm[1]]){
+    return MAP[lm[1]][idx] + lm[2] + (lm[3] ? trCore(lm[3], lang) : '');
+  }
+  return s;
+}
+function trCore(core, lang){
+  if(!core) return core;
+  if(MAP[core]) return MAP[core][lang==='bn'?0:1];
+  const pm = core.match(SYM_PRE), pre = pm ? pm[0] : '';
+  let rest = core.slice(pre.length), suf = '';
+  const sm = rest.match(SYM_SUF);
+  if(sm){ suf = sm[0]; rest = rest.slice(0, rest.length - suf.length); }
+  if((pre || suf) && rest){
+    const o = trCore2(rest, lang);
+    return o !== rest ? pre + o + suf : core;
+  }
+  return trCore2(core, lang);
+}
+function tr(src, lang){
+  if(!src) return src;
+  const m = src.match(/^(\s*)([\s\S]*?)(\s*)$/);
+  if(!m[2]) return src;
+  const out = trCore(m[2], lang);
+  return out === m[2] ? src : m[1] + out + m[3];
+}
+
+// ---------- DOM অনুবাদ ----------
+const TREC = new WeakMap(), AREC = new WeakMap();
+const SKIP = 'script,style,textarea,#tickerBar,.pname,[data-notr]';
+const ATTRS = ['placeholder','aria-label','title','label'];
+function skipText(n){
+  const p = n.parentElement; if(!p) return true;
+  if(p.closest(SKIP)) return true;
+  // <option> এর ভ্যালু যদি লেখা থেকেই আসে (যেমন পেমেন্ট মেথড), সেটা অনুবাদ করা যাবে না
+  if(p.tagName === 'OPTION' && !p.hasAttribute('value')) return true;
+  return false;
+}
+function trText(n){
+  if(skipText(n)) return;
+  const v = n.nodeValue, rec = TREC.get(n);
+  const src = (rec && v === rec.out) ? rec.src : v;
+  const out = tr(src, LANG);
+  TREC.set(n, {src, out});
+  if(out !== v) n.nodeValue = out;
+}
+function trAttr(el, a){
+  if(!el.hasAttribute(a)) return;
+  if(a === 'label' && el.tagName !== 'OPTGROUP') return;
+  if(el.parentElement && el.parentElement.closest('script,style,#tickerBar,[data-notr]')) return;
+  let r = AREC.get(el); if(!r){ r = {}; AREC.set(el, r); }
+  const v = el.getAttribute(a), rec = r[a];
+  const src = (rec && v === rec.out) ? rec.src : v;
+  const out = tr(src, LANG);
+  r[a] = {src, out};
+  if(out !== v) el.setAttribute(a, out);
+}
+function applyNode(node){
+  if(node.nodeType === 3){ trText(node); return; }
+  if(node.nodeType !== 1) return;
+  const tw = document.createTreeWalker(node, NodeFilter.SHOW_TEXT);
+  let t; while((t = tw.nextNode())) trText(t);
+  const els = [node, ...node.querySelectorAll('[placeholder],[aria-label],[title],optgroup[label]')];
+  els.forEach(el=>ATTRS.forEach(a=>trAttr(el, a)));
+}
+function syncLangUI(){
+  document.querySelectorAll('.langsw button[data-lang]').forEach(b=>{
+    const on = b.getAttribute('data-lang') === LANG;
+    b.classList.toggle('on', on); b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+  const lt = document.getElementById('langToggle');
+  if(lt){ lt.textContent = LANG === 'bn' ? 'EN' : 'বাং'; lt.title = LANG === 'bn' ? 'Switch to English' : 'বাংলায় দেখুন'; }
+}
+function setLang(l){
+  if(l !== 'bn' && l !== 'en') return;
+  LANG = l;
+  try{ localStorage.setItem('bp_lang', l); }catch(e){}
+  document.documentElement.lang = l;
+  applyNode(document.body);
+  syncLangUI();
+}
+window.setLang = setLang;
+
+// alert / confirm এর মেসেজও বর্তমান ভাষায় দেখাবে
+const _alert = window.alert.bind(window), _confirm = window.confirm.bind(window);
+window.alert = m => _alert(tr(String(m), LANG));
+window.confirm = m => _confirm(tr(String(m), LANG));
+
+// নতুন তৈরি হওয়া অংশ (প্রোডাক্ট লিস্ট, পপ-আপ, কার্ট ইত্যাদি) নিজে থেকেই অনুবাদ হবে
+new MutationObserver(muts=>{
+  for(const m of muts){
+    if(m.type === 'childList') m.addedNodes.forEach(applyNode);
+    else if(m.type === 'characterData') trText(m.target);
+    else if(m.type === 'attributes') trAttr(m.target, m.attributeName);
+  }
+  syncLangUI();
+}).observe(document.body, {childList:true, subtree:true, characterData:true, attributes:true, attributeFilter:ATTRS});
+
+document.documentElement.lang = LANG;
+applyNode(document.body);
+syncLangUI();
 </script>
 </body>
 </html>
