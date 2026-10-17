@@ -201,11 +201,20 @@ header h1{min-width:0;overflow:hidden;}
 @media (max-width:700px){
   header .langsw{display:none;}
   .langtoggle{display:inline-block;}
-  .brandtext{font-size:clamp(12px,3.8vw,17px);}
+  header .brandtext{font-size:clamp(12px,3.8vw,17px);}
   .sb-lang{display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:8px 10px;margin:8px 0 4px;font-size:13px;font-weight:600;}
   .sb-lang .langsw{background:var(--border);}
   .sb-lang .langsw button{color:var(--text);}
   .sb-lang .langsw button.on{background:var(--pink-dark);color:#fff;}
+}
+@media (max-width:420px){
+  header{gap:6px;}
+  header .brandlogo{width:36px;height:36px;}
+  header .brandtext{margin-left:5px;gap:4px;font-size:clamp(10px,3.4vw,14px);letter-spacing:0;}
+  header .bname{letter-spacing:0;font-size:1em;}
+  header .b3s{padding:2px 5px 3px;border-radius:8px;}
+  .navicons{gap:8px;}
+  .langtoggle{font-size:10.5px;padding:5px 7px;}
 }
 /* ---------- Mobile: filter menu behind ⋮ (three dots) ---------- */
 .searchrow{display:flex;gap:8px;align-items:flex-start;}
@@ -253,6 +262,7 @@ header h1{min-width:0;overflow:hidden;}
 .bptoast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#222;color:#fff;padding:10px 18px;border-radius:24px;font-size:13px;font-weight:600;z-index:60;box-shadow:0 6px 20px rgba(0,0,0,.3);animation:qsfade .15s ease-out;}
 .trxbox{background:#fff8e6;border:1px solid #f3dfa2;border-radius:12px;padding:12px 14px;margin:6px 0 14px;}
 .trxbox input{margin-bottom:0;text-transform:uppercase;letter-spacing:.5px;}
+.trxbox input::placeholder{text-transform:none;letter-spacing:0;font-size:13px;}
 /* ---------- Footer ---------- */
 main{padding-bottom:36px;}
 .bpfoot{background:#1a1316;color:#e9dfe1;margin-top:8px;font-size:13.5px;}
@@ -1391,10 +1401,17 @@ function applyNode(node){
 function syncLangUI(){
   document.querySelectorAll('.langsw button[data-lang]').forEach(b=>{
     const on = b.getAttribute('data-lang') === LANG;
-    b.classList.toggle('on', on); b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    if(b.classList.contains('on') !== on) b.classList.toggle('on', on);
+    const ap = on ? 'true' : 'false';
+    if(b.getAttribute('aria-pressed') !== ap) b.setAttribute('aria-pressed', ap);
   });
   const lt = document.getElementById('langToggle');
-  if(lt){ lt.textContent = LANG === 'bn' ? 'EN' : 'বাং'; lt.title = LANG === 'bn' ? 'Switch to English' : 'বাংলায় দেখুন'; }
+  if(lt){
+    // একই মান বারবার বসালে MutationObserver আবার চালু হয়ে অসীম লুপ তৈরি করে, তাই শুধু বদলালেই লিখি
+    const txt = LANG === 'bn' ? 'EN' : 'বাং', ttl = LANG === 'bn' ? 'Switch to English' : 'বাংলায় দেখুন';
+    if(lt.textContent !== txt) lt.textContent = txt;
+    if(lt.getAttribute('title') !== ttl) lt.setAttribute('title', ttl);
+  }
 }
 function setLang(l){
   if(l !== 'bn' && l !== 'en') return;
