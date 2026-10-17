@@ -188,6 +188,31 @@ th{background:var(--border);}
   .navicon small{display:none;}
   .navicons{gap:10px;}
 }
+/* ---------- Mobile: filter menu behind ⋮ (three dots) ---------- */
+.searchrow{display:flex;gap:8px;align-items:flex-start;}
+.searchrow .searchbar{flex:1;min-width:0;}
+.dotsbtn{display:none;}
+.sb-head{display:none;}
+.sb-head + h4{margin-top:0;}
+.sb-backdrop{display:none;}
+@media (max-width:700px){
+  .storelayout{display:block;}
+  .storecontent{width:100%;}
+  .dotsbtn{display:flex;align-items:center;justify-content:center;flex:0 0 auto;width:46px;height:46px;background:var(--card);border:1px solid var(--border);border-radius:10px;font-size:26px;font-weight:900;line-height:1;color:var(--pink-dark);cursor:pointer;box-shadow:var(--shadow);}
+  .dotsbtn:active{background:var(--border);}
+  .sidebar{position:fixed;top:0;left:0;bottom:0;height:100%;max-height:none;width:min(82vw,320px);z-index:50;border-radius:0 18px 18px 0;padding:14px 16px 24px;font-size:14px;transform:translateX(-105%);visibility:hidden;transition:transform .25s ease,visibility 0s linear .25s;box-shadow:6px 0 28px rgba(0,0,0,.25);overflow-y:auto;}
+  .sidebar.open{transform:none;visibility:visible;transition:transform .25s ease,visibility 0s;}
+  .sidebar h4{font-size:11px;margin:16px 0 8px;}
+  .sidebar-link{font-size:14px;padding:9px 10px;}
+  .sidebar-sub{font-size:13px;padding:7px 10px;}
+  .sb-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;font-size:16px;color:var(--text);}
+  .sb-head button{background:var(--border);border:none;width:32px;height:32px;border-radius:50%;font-size:15px;cursor:pointer;color:var(--text);}
+  .sb-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:49;display:none;}
+  .sb-backdrop.show{display:block;animation:qsfade .2s ease-out;}
+  .quickpills{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px;}
+  .quickpills::-webkit-scrollbar{display:none;}
+  .qpill{flex:0 0 auto;white-space:nowrap;}
+}
 /* ---------- Quick Shop popup, toast, trx box ---------- */
 .qsov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:45;display:flex;align-items:center;justify-content:center;padding:16px;animation:qsfade .15s ease-out;}
 .qsbox{background:var(--card);color:var(--text);border-radius:18px;width:100%;max-width:380px;max-height:90vh;overflow-y:auto;padding:18px;position:relative;box-shadow:0 20px 50px rgba(0,0,0,.3);animation:qspop .18s ease-out;}
@@ -203,6 +228,36 @@ th{background:var(--border);}
 .bptoast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#222;color:#fff;padding:10px 18px;border-radius:24px;font-size:13px;font-weight:600;z-index:60;box-shadow:0 6px 20px rgba(0,0,0,.3);animation:qsfade .15s ease-out;}
 .trxbox{background:#fff8e6;border:1px solid #f3dfa2;border-radius:12px;padding:12px 14px;margin:6px 0 14px;}
 .trxbox input{margin-bottom:0;text-transform:uppercase;letter-spacing:.5px;}
+/* ---------- Footer ---------- */
+main{padding-bottom:36px;}
+.bpfoot{background:#1a1316;color:#e9dfe1;margin-top:8px;font-size:13.5px;}
+.bpfoot a{color:#f3e8ea;text-decoration:none;}
+.bpfoot a:hover{color:var(--pink);}
+.bpfoot-in{max-width:1680px;margin:0 auto;padding:34px 24px 26px;display:grid;grid-template-columns:1.3fr 1.3fr .8fr;gap:30px;}
+.bpfoot h4{margin:0 0 14px;font-size:16px;font-weight:700;color:#fff;padding-left:10px;border-left:3px solid var(--pink);line-height:1.2;}
+.fbrandrow{display:flex;align-items:center;gap:12px;}
+.flogo{width:72px;height:72px;border-radius:50%;object-fit:cover;background:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.18);flex:0 0 auto;}
+.fname{display:flex;align-items:center;gap:8px;font-family:'Fredoka','Baloo 2','Comic Sans MS',system-ui,sans-serif;font-weight:700;line-height:1;}
+.fname .f3s{display:inline-flex;background:#fff;border-radius:11px;padding:3px 8px 4px;font-size:22px;}
+.fname .f3s i{font-style:normal;}
+.fname .f3s i:first-child{color:#0a7fd6;}
+.fname .f3s i:last-child{color:var(--pink-dark);}
+.fname .fn{font-size:24px;color:#fff;}
+.ftag{margin:12px 0 14px;color:#bda9ad;font-size:13px;}
+.fsocial{display:flex;gap:10px;}
+.fsocial a{width:38px;height:38px;border:1.5px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;color:#fff;}
+.fsocial a svg{width:18px;height:18px;}
+.fsocial a:hover{background:var(--pink-dark);border-color:var(--pink-dark);color:#fff;}
+.frow{display:flex;gap:8px;line-height:1.7;margin-bottom:10px;}
+.frow .fl{flex:0 0 auto;color:#bda9ad;min-width:62px;}
+.frow .fv{display:flex;flex-direction:column;}
+.flinks{display:flex;flex-direction:column;gap:9px;}
+.flinks a{cursor:pointer;}
+.fbar{background:#0d0a0b;text-align:center;padding:14px 16px;font-size:12px;color:#d9ccce;}
+@media (max-width:820px){
+  .bpfoot-in{grid-template-columns:1fr;gap:24px;padding:26px 16px 18px;}
+  .fbar{padding-bottom:70px;}
+}
 /* ---------- Header logo ---------- */
 header h1{display:flex;align-items:center;line-height:0;}
 .brandlogo{display:block;width:46px;height:46px;border-radius:50%;object-fit:cover;background:#fff;box-shadow:0 0 0 2px rgba(255,255,255,.75),0 2px 8px rgba(0,0,0,.18);user-select:none;-webkit-user-drag:none;}
@@ -266,6 +321,45 @@ header h1{display:flex;align-items:center;line-height:0;}
 <main>
   <div id="storeView"></div>
 </main>
+<!-- ===== Footer: নিচের তথ্য বদলাতে চাইলে এখানেই এডিট করুন ===== -->
+<footer class="bpfoot">
+  <div class="bpfoot-in">
+    <div class="fcol">
+      <div class="fbrandrow">
+        <img class="flogo" id="footLogo" alt="3S Baby Poshak">
+        <div><div class="fname"><span class="f3s"><i>3</i><i>S</i></span><span class="fn">BaBy PoShAk</span></div></div>
+      </div>
+      <p class="ftag">Little Looks ♥ Big Happiness</p>
+      <div class="fsocial">
+        <a href="https://www.facebook.com/share/1Fc8pUEEfF/" target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-8h2.7l.4-3.2h-3.1V7.8c0-.9.3-1.5 1.6-1.5h1.7V3.4c-.3 0-1.3-.1-2.4-.1-2.4 0-4.1 1.5-4.1 4.2v2.3H7.5V13h2.8v8h3.2z"/></svg></a>
+        <a href="https://wa.me/8801712863183" target="_blank" rel="noopener" aria-label="WhatsApp">💬</a>
+        <a href="tel:+8801712863183" aria-label="Call">📞</a>
+      </div>
+    </div>
+    <div class="fcol">
+      <h4>📞 Contact Us</h4>
+      <div class="frow"><span class="fl">Facebook :</span><span class="fv"><a href="https://www.facebook.com/share/1Fc8pUEEfF/" target="_blank" rel="noopener">3S Baby Poshak</a></span></div>
+      <div class="frow"><span class="fl">Phone :</span><span class="fv"><a href="tel:+8801712863183">+8801712-86 31 83</a><a href="tel:+8801721048345">01721-048 345</a></span></div>
+    </div>
+    <div class="fcol">
+      <h4>Quick Links</h4>
+      <div class="flinks">
+        <a onclick="window.scrollTo({top:0,behavior:'smooth'})">Shop</a>
+        <a onclick="openMyOrders()">আমার অর্ডার</a>
+        <a onclick="openWishlist()">Wishlist</a>
+        <a onclick="showStores()">Store Info</a>
+      </div>
+    </div>
+  </div>
+  <div class="fbar">Copyright © <span id="footYear">2026</span> 3S Baby Poshak. All Rights Reserved.</div>
+</footer>
+<script>
+(function(){
+  var h=document.querySelector('.brandlogo'), f=document.getElementById('footLogo');
+  if(h&&f) f.src=h.src;
+  var y=document.getElementById('footYear'); if(y) y.textContent=new Date().getFullYear();
+})();
+</script>
 <button class="cartfab hidden" id="cartFab" onclick="openCart()">🛒 <span id="cartCount">0</span></button>
 <a class="whatsfab hidden" id="waFab" target="_blank" href="#">💬</a>
 
@@ -552,7 +646,9 @@ function renderStore(){
     <div id="heroBanner"></div>
     <div id="offerWidget"></div>
     <div class="storelayout">
+      <div class="sb-backdrop" id="sbBackdrop" onclick="toggleSidebar(false)"></div>
       <div class="sidebar" id="sidebarPanel">
+        <div class="sb-head"><b>📋 মেনু</b><button type="button" onclick="toggleSidebar(false)" aria-label="বন্ধ করুন">✕</button></div>
         <h4>Special Offers</h4>
         ${sidebarLink('All','সব প্রোডাক্ট')}
         ${sidebarLink('MegaDeal','🔥 Mega Deal')}
@@ -573,7 +669,10 @@ function renderStore(){
         </select>
       </div>
       <div class="storecontent">
-        <div class="searchbar"><span>🔍</span><input id="searchBox" value="${searchQuery}" placeholder="Search a product" oninput="setSearchQuery(this.value)"></div>
+        <div class="searchrow">
+          <button type="button" class="dotsbtn" onclick="toggleSidebar(true)" aria-label="মেনু খুলুন">⋮</button>
+          <div class="searchbar"><span>🔍</span><input id="searchBox" value="${searchQuery}" placeholder="Search a product" oninput="setSearchQuery(this.value)"></div>
+        </div>
         ${filterSubcat!=='All'?`<div class="note" style="margin-bottom:10px">Sub-category: <b>${filterSubcat}</b> <span style="cursor:pointer;color:var(--pink-dark)" onclick="clearSubcat()">✕ clear</span></div>`:''}
         <div class="quickpills">
           <div class="qpill qp-blue ${filterCat==='Newborn Collection'?'active':''}" onclick="setFilterCat('Newborn Collection')">👶 Newborn</div>
@@ -587,6 +686,7 @@ function renderStore(){
   renderProductGrid();
   renderHeroBanner();
   renderOfferWidget();
+  syncSidebar();
 }
 function renderProductGrid(){
   const grid = document.getElementById('prodGrid');
@@ -628,12 +728,25 @@ function renderProductGrid(){
 function setSub(i,j){
   const c = CATEGORIES[i];
   filterCat = c; filterSubcat = SUBCATS[c][j]; searchQuery = '';
+  sbOpen = false;
   renderStore();
 }
 function setSearchQuery(v){ searchQuery=v; renderProductGrid(); }
-function setFilterCat(c){ filterCat=c; filterSubcat='All'; renderStore(); }
-function setFilterAge(a){ filterAge=a; renderStore(); }
-function setFilterSize(s){ filterSize=s; renderStore(); }
+// মোবাইলে ⋮ বাটনে খোলা মেনু (সাইডবার): সাব-ক্যাটাগরি থাকলে খোলা থাকে, নাহলে বন্ধ হয়ে যায়
+let sbOpen = false;
+function syncSidebar(){
+  const sb = document.getElementById('sidebarPanel'), bd = document.getElementById('sbBackdrop');
+  const open = sbOpen && window.innerWidth <= 700;
+  if(sb) sb.classList.toggle('open', open);
+  if(bd) bd.classList.toggle('show', open);
+  document.body.style.overflow = open ? 'hidden' : '';
+}
+function toggleSidebar(v){ sbOpen = (v===undefined) ? !sbOpen : !!v; syncSidebar(); }
+window.addEventListener('resize', syncSidebar);
+document.addEventListener('keydown', e=>{ if(e.key==='Escape' && sbOpen) toggleSidebar(false); });
+function setFilterCat(c){ filterCat=c; filterSubcat='All'; sbOpen = sbOpen && !!(SUBCATS[c] && SUBCATS[c].length); renderStore(); }
+function setFilterAge(a){ filterAge=a; sbOpen=false; renderStore(); }
+function setFilterSize(s){ filterSize=s; sbOpen=false; renderStore(); }
 function clearSubcat(){ filterSubcat='All'; renderStore(); }
 function addToCart(id, qty){
   qty = qty||1;
