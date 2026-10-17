@@ -1117,12 +1117,12 @@ function renderOffersTab(body){
     ${offers.length ? offers.map(o=>`<div class="ordercard" style="cursor:default">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
           <div><b>${esc(o.title)}</b> ${o.active?'<span class="stbadge">Active</span>':'<span class="stbadge Cancelled">Inactive</span>'}<br>
-          <small>${esc(o.description||'')}</small>${o.discount?`<br><small>🏷️ ${esc(o.discount)}</small>`:''}${o.productId?`<br><small>🛍️ ${esc((products.find(p=>p.id===o.productId)||{}).name||'(প্রোডাক্ট পাওয়া যায়নি)')}</small>`:o.category?`<br><small>🔗 ${esc(o.category)}</small>`:''}</div>
+          <small>${esc(o.description||'')}</small>${o.discount?`<br><small>🏷️ ${esc(o.discount)}</small>`:''}${o.endAt?`<br><small style="font-weight:700;color:${Number(o.endAt)<=Date.now()?'#c92a2a':'#0e9f6e'}">⏳ ${Number(o.endAt)<=Date.now()?'মেয়াদ শেষ':'শেষ হবে'}: ${fmtOfferDT(o.endAt)}</small>`:''}${o.productId?`<br><small>🛍️ ${esc((products.find(p=>p.id===o.productId)||{}).name||'(প্রোডাক্ট পাওয়া যায়নি)')}</small>`:o.category?`<br><small>🔗 ${esc(o.category)}</small>`:''}</div>
           <div style="flex-shrink:0"><button class="smallbtn edit" onclick="editOffer('${o.id}')">✏️ এডিট</button><button class="smallbtn del" onclick="deleteOffer('${o.id}')">🗑️ ডিলিট</button></div>
         </div></div>`).join('') : '<p class="note">এখনো কোনো অফার যোগ করা হয়নি।</p>'}`;
 }
 function editOffer(id){
-  const o = id ? offers.find(x=>x.id===id) : {title:'',description:'',discount:'',imageUrl:'',category:'',productId:'',active:true};
+  const o = id ? offers.find(x=>x.id===id) : {title:'',description:'',discount:'',imageUrl:'',category:'',productId:'',active:true,endAt:null};
   showSheet(`<button class="close" onclick="closeSheet()">✕</button><h2>${id?'অফার এডিট':'নতুন অফার'}</h2>
     <label>অফারের টাইটেল</label><input id="ofTitle" value="${esc(o.title)}" placeholder="যেমন: ঈদ স্পেশাল অফার">
     <label>বিস্তারিত</label><input id="ofDesc" value="${esc(o.description||'')}" placeholder="যেমন: সব Frock এ ২০% ছাড়">
@@ -1134,13 +1134,46 @@ function editOffer(id){
     <select id="ofProduct"><option value="">— কোনো নির্দিষ্ট প্রোডাক্ট না —</option>${products.map(p=>`<option value="${p.id}" ${o.productId===p.id?'selected':''}>${esc(p.name)} (স্টক: ${p.stock}, ৳${p.price})</option>`).join('')}</select>
     <label>অথবা — ক্লিক করলে কোন ক্যাটাগরিতে যাবে (ঐচ্ছিক, প্রোডাক্ট বেছে নিলে এটা লাগবে না)</label>
     <select id="ofCat"><option value="">— কোনো নির্দিষ্ট ক্যাটাগরি না —</option>${CATEGORIES.map(c=>`<option ${o.category===c?'selected':''}>${c}</option>`).join('')}</select>
+    <label>⏳ অফার শেষ হওয়ার তারিখ ও সময় (ঐচ্ছিক) — দিলে কাস্টমার পেজে "কত দিন-ঘণ্টা-মিনিট বাকি" ঝিকমিক কাউন্টডাউনে দেখাবে, সময় পার হলে অফার নিজে থেকেই বন্ধ হয়ে যাবে (ছাড়ও থাকবে না)</label>
+    <input type="datetime-local" id="ofEnd" value="${o.endAt?toLocalInput(o.endAt):''}">
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin:-4px 0 12px">
+      <button type="button" class="smallbtn edit" onclick="setOfferEnd('today')">আজ রাত ১১:৫৯</button>
+      <button type="button" class="smallbtn edit" onclick="setOfferEnd(1)">+১ দিন</button>
+      <button type="button" class="smallbtn edit" onclick="setOfferEnd(3)">+৩ দিন</button>
+      <button type="button" class="smallbtn edit" onclick="setOfferEnd(7)">+৭ দিন</button>
+      <button type="button" class="smallbtn edit" onclick="setOfferEnd(15)">+১৫ দিন</button>
+      <button type="button" class="smallbtn del" onclick="setOfferEnd(0)">✕ মুছুন</button>
+    </div>
     <label style="display:flex;align-items:center;gap:8px;"><input type="checkbox" id="ofActive" style="width:auto;margin:0;" ${o.active!==false?'checked':''}> Active (কাস্টমার পেজে দেখাবে)</label>
     <button class="primary" style="width:100%" onclick="saveOffer('${id||''}')">সেভ করুন</button>`);
+}
+function toLocalInput(ms){
+  const d = new Date(Number(ms)), p = n=>String(n).padStart(2,'0');
+  return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'T'+p(d.getHours())+':'+p(d.getMinutes());
+}
+function fmtOfferDT(ms){
+  return new Date(Number(ms)).toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'numeric',minute:'2-digit',hour12:true});
+}
+function setOfferEnd(v){
+  const el = document.getElementById('ofEnd'); if(!el) return;
+  if(!v){ el.value = ''; return; }
+  const d = new Date();
+  if(v==='today'){ d.setHours(23,59,0,0); }
+  else { d.setTime(Date.now() + v*86400000); d.setSeconds(0,0); }
+  el.value = toLocalInput(d.getTime());
 }
 async function saveOffer(id){
   const title = document.getElementById('ofTitle').value.trim();
   if(!title){ alert('অফারের টাইটেল দিন'); return; }
+  const endVal = document.getElementById('ofEnd').value;
+  let endAt = null;
+  if(endVal){
+    endAt = new Date(endVal).getTime();
+    if(isNaN(endAt)){ alert('অফার শেষের তারিখ ও সময় সঠিক নয়'); return; }
+    if(endAt <= Date.now() && !confirm('আপনার দেওয়া শেষের সময় পার হয়ে গেছে — এই অফার কাস্টমার পেজে দেখাবে না। তবুও সেভ করবেন?')) return;
+  }
   const data = {
+    endAt,
     title,
     description: document.getElementById('ofDesc').value.trim(),
     discount: document.getElementById('ofDiscount').value.trim(),

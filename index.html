@@ -146,6 +146,33 @@ th{background:var(--border);}
 .offercard .ofdots{display:flex;gap:4px;margin-top:8px;}
 .offercard .ofdots span{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.4);}
 .offercard .ofdots span.on{background:#fff;}
+.offercard{flex-wrap:wrap;}
+.offercard .ofcd{flex:0 0 100%;background:rgba(0,0,0,.24);border-top:1px dashed rgba(255,255,255,.55);padding:10px 10px 12px;text-align:center;cursor:default;}
+.ofcd-label{font-size:17px;font-weight:900;letter-spacing:.3px;color:#fff;animation:ofblink 1.1s ease-in-out infinite;}
+.ofcd-label .sp{display:inline-block;animation:oftwinkle 1.1s ease-in-out infinite;}
+.ofcd-label .sp:last-child{animation-delay:.55s;}
+.ofcd-boxes{display:flex;justify-content:center;gap:8px;margin:9px 0 8px;}
+.ofcd .cdb{min-width:60px;background:#fff;color:var(--pink-dark);border-radius:11px;padding:6px 6px 5px;box-shadow:0 0 0 2px rgba(255,255,255,.45),0 0 14px rgba(255,255,255,.75);animation:ofglow 1.4s ease-in-out infinite;}
+.ofcd .cdb b{display:block;font-size:30px;font-weight:900;line-height:1.05;font-variant-numeric:tabular-nums;}
+.ofcd .cdb i{display:block;font-style:normal;font-size:12px;font-weight:800;margin-top:1px;}
+.ofcd .cdb.sec{animation:ofpulse 1s ease-in-out infinite;}
+.ofcd-end{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px 6px;font-size:13px;font-weight:800;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.35);}
+.ofcd-end b{background:rgba(255,255,255,.22);padding:3px 10px;border-radius:12px;}
+.ofcd .ofhurry{display:none;margin-top:7px;font-size:14px;font-weight:900;color:#fff176;animation:ofblink .7s ease-in-out infinite;}
+.ofcd.urgent .ofhurry{display:block;}
+.ofcd.urgent .cdb{color:#d90429;}
+@keyframes ofblink{0%,100%{opacity:1;text-shadow:0 0 10px #fff,0 0 22px #ffd54a;}50%{opacity:.5;text-shadow:none;}}
+@keyframes oftwinkle{0%,100%{transform:scale(1) rotate(0);opacity:1;}50%{transform:scale(1.5) rotate(25deg);opacity:.4;}}
+@keyframes ofglow{0%,100%{box-shadow:0 0 0 2px rgba(255,255,255,.45),0 0 10px rgba(255,255,255,.55);}50%{box-shadow:0 0 0 3px rgba(255,255,255,.8),0 0 22px rgba(255,235,120,.95);}}
+@keyframes ofpulse{0%,100%{transform:scale(1);}50%{transform:scale(1.09);}}
+@media (max-width:700px){
+  .ofcd-label{font-size:15px;}
+  .ofcd-boxes{gap:6px;}
+  .ofcd .cdb{min-width:0;flex:1 1 0;max-width:74px;padding:5px 2px 4px;}
+  .ofcd .cdb b{font-size:25px;}
+  .ofcd .cdb i{font-size:11px;}
+}
+@media (prefers-reduced-motion:reduce){ .ofcd-label,.ofcd-label .sp,.ofcd .cdb,.ofcd .ofhurry{animation:none;} }
 .sidebar h4:first-child{margin-top:0;}
 .sidebar-link{display:flex;justify-content:space-between;padding:7px 8px;border-radius:6px;cursor:pointer;font-size:13px;}
 .sidebar-link:hover{background:var(--border);}
@@ -609,24 +636,77 @@ function renderTicker(){
 let offers = [];
 let offerIdx = 0;
 let offerTimer = null;
-db.collection('offers').onSnapshot(snap=>{
-  offers = snap.docs.map(d=>({id:d.id, ...d.data()})).filter(o=>o.active!==false);
-  offerIdx = 0;
-  renderOfferWidget();
-  if(offerTimer) clearInterval(offerTimer);
+function startOfferRotation(){
+  if(offerTimer){ clearInterval(offerTimer); offerTimer = null; }
   if(offers.length>1){
     offerTimer = setInterval(()=>{
       offerIdx = (offerIdx+1) % offers.length;
       renderOfferWidget();
     }, 2800);
   }
+}
+db.collection('offers').onSnapshot(snap=>{
+  const now = Date.now();
+  // Active অফার, এবং শেষ হওয়ার সময় (endAt) দেওয়া থাকলে সেটা পার হয়নি এমন অফার
+  offers = snap.docs.map(d=>({id:d.id, ...d.data()})).filter(o=>o.active!==false && (!o.endAt || Number(o.endAt)>now));
+  offerIdx = 0;
+  renderOfferWidget();
+  startOfferRotation();
 });
+// ---- অফারের কাউন্টডাউন ----
+function cdParts(ms){
+  const t = Math.max(0, Math.floor(ms/1000));
+  return { d: Math.floor(t/86400), h: Math.floor((t%86400)/3600), m: Math.floor((t%3600)/60), s: t%60 };
+}
+function cdPad(n){ return String(n).padStart(2,'0'); }
+function fmtOfferEnd(ms){
+  const en = document.documentElement.lang === 'en';
+  const opt = {day:'numeric', month:'long', year:'numeric', hour:'numeric', minute:'2-digit', hour12:true};
+  try{ return new Date(ms).toLocaleString(en?'en-GB':'bn-BD', opt); }
+  catch(e){ return new Date(ms).toLocaleString('en-GB', opt); }
+}
+function offerTick(){
+  const now = Date.now();
+  if(offers.some(o=>o.endAt && Number(o.endAt)<=now)){
+    // সময় শেষ হওয়া অফার সরিয়ে দেওয়া হয় — অফারের ছাড়ও আর থাকে না
+    const alive = offers.filter(o=>!o.endAt || Number(o.endAt)>now);
+    offers.filter(o=>o.endAt && Number(o.endAt)<=now).forEach(o=>{
+      if(o.productId && !alive.some(x=>x.productId===o.productId)) delete offerPriceOverride[o.productId];
+    });
+    offers = alive; offerIdx = 0;
+    renderOfferWidget(); startOfferRotation();
+    if(typeof renderProductGrid === 'function') renderProductGrid();
+    return;
+  }
+  const el = document.querySelector('.ofcd');
+  if(!el) return;
+  const p = cdParts(Number(el.getAttribute('data-end')) - now);
+  const set = (cls, v)=>{ const n = el.querySelector(cls); if(n && n.textContent !== v) n.textContent = v; };
+  set('.cdD', cdPad(p.d)); set('.cdH', cdPad(p.h)); set('.cdM', cdPad(p.m)); set('.cdS', cdPad(p.s));
+  el.classList.toggle('urgent', Number(el.getAttribute('data-end')) - now < 86400000);
+}
+setInterval(offerTick, 1000);
 function renderOfferWidget(){
   const box = document.getElementById('offerWidget');
   if(!box) return;
   if(!offers.length){ box.innerHTML=''; return; }
-  const o = offers[offerIdx];
+  const o = offers[offerIdx] || offers[0];
   const imgUrl = o.imageUrl || (o.productId && (products.find(p=>p.id===o.productId)||{}).imageUrl) || '';
+  let cd = '';
+  if(o.endAt){
+    const end = Number(o.endAt), p = cdParts(end - Date.now());
+    cd = `<div class="ofcd ${end - Date.now() < 86400000 ? 'urgent' : ''}" data-end="${end}" onclick="event.stopPropagation()">
+        <div class="ofcd-label"><span class="sp">✨</span> ⏳ অফার শেষ হতে বাকি <span class="sp">✨</span></div>
+        <div class="ofcd-boxes">
+          <div class="cdb"><b class="cdD">${cdPad(p.d)}</b><i>দিন</i></div>
+          <div class="cdb"><b class="cdH">${cdPad(p.h)}</b><i>ঘণ্টা</i></div>
+          <div class="cdb"><b class="cdM">${cdPad(p.m)}</b><i>মিনিট</i></div>
+          <div class="cdb sec"><b class="cdS">${cdPad(p.s)}</b><i>সেকেন্ড</i></div>
+        </div>
+        <div class="ofcd-end">📅 <span>অফার শেষ হবে</span> <b>${esc2(fmtOfferEnd(end))}</b></div>
+        <div class="ofhurry">🔥 তাড়াতাড়ি করুন — সময় প্রায় শেষ!</div>
+      </div>`;
+  }
   box.innerHTML = `<div class="offercard ${imgUrl?'has-img':''}" onclick="offerClick('${o.productId?esc2(o.productId):''}','${o.category?esc2(o.category):''}',${Number(o.discountPercent)||0})">
       ${imgUrl?`<img src="${esc2(imgUrl)}" alt="${esc2(o.title)}">`:''}
       <div class="ofcontent">
@@ -636,6 +716,7 @@ function renderOfferWidget(){
         ${o.productId?`<div class="ofdesc" style="margin-top:4px;font-weight:700">🛍️ অর্ডার করতে ট্যাপ করুন</div>`:''}
         ${offers.length>1?`<div class="ofdots">${offers.map((_,i)=>`<span class="${i===offerIdx?'on':''}"></span>`).join('')}</div>`:''}
       </div>
+      ${cd}
     </div>`;
 }
 function esc2(v){ return String(v==null?'':v).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
@@ -1240,7 +1321,8 @@ const PAIRS = [
   ['এখনই অর্ডার করুন','Order Now'],['এখনই অর্ডার','Order Now'],
   ['অর্ডারের জন্য কল করুন','Call For Order'],['WhatsApp-এ অর্ডার করুন','Order On WhatsApp'],
   ['প্রোডাক্টটি শেয়ার করুন:','Share this product:'],['লিংক কপি','Copy Link'],
-  ['অফার দাম','Offer price'],['অফার','Offer'],['অর্ডার করতে ট্যাপ করুন','Tap to order'],
+  ['অফার দাম','Offer price'],
+  ['অফার শেষ হতে বাকি','Offer ends in'],['দিন','Days'],['ঘণ্টা','Hours'],['মিনিট','Minutes'],['সেকেন্ড','Seconds'],['অফার শেষ হবে','Offer ends on'],['তাড়াতাড়ি করুন — সময় প্রায় শেষ!','Hurry — time is almost up!'],['অফার','Offer'],['অর্ডার করতে ট্যাপ করুন','Tap to order'],
   ['পরিমাণ','Quantity'],['এই প্রোডাক্টের সর্বোচ্চ স্টক আপনার কার্টে আছে।','The maximum available stock is already in your cart.'],
   ['কার্ট দেখুন','View Cart'],['চেকআউট','Checkout'],['পুরো বিবরণ দেখুন','View full details'],
   ['কার্টে যোগ করা হয়েছে','Added to cart'],
@@ -1321,7 +1403,7 @@ const PAT = [
   {re:/^স্টকে মাত্র (\d+) পিস আছে, আর বাড়ানো যাবে না।$/, en:m=>'Only '+m[1]+' pcs in stock — you cannot increase the quantity further.'}
 ];
 
-const SYM_PRE = /^[\s\u2190-\u21FF\u2600-\u27BF\u2B00-\u2BFF\u{1F000}-\u{1FAFF}\uFE0F\u200D]+/u;
+const SYM_PRE = /^[\s\u2190-\u21FF\u2300-\u23FF\u2600-\u27BF\u2B00-\u2BFF\u{1F000}-\u{1FAFF}\uFE0F\u200D]+/u;
 const SYM_SUF = /[\s\u2190-\u21FF\uFE0F]+$/u;
 
 function T(x){ return trCore(x, LANG); }
@@ -1426,6 +1508,7 @@ function setLang(l){
   document.documentElement.lang = l;
   applyNode(document.body);
   syncLangUI();
+  if(typeof renderOfferWidget === 'function') renderOfferWidget(); // অফারের শেষ-সময়ের তারিখ বর্তমান ভাষায়
 }
 window.setLang = setLang;
 
