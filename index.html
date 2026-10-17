@@ -198,7 +198,13 @@ th{background:var(--border);}
 @media (max-width:700px){
   .storelayout{display:block;}
   .storecontent{width:100%;}
-  .dotsbtn{display:flex;align-items:center;justify-content:center;flex:0 0 auto;width:46px;height:46px;background:var(--card);border:1px solid var(--border);border-radius:10px;font-size:26px;font-weight:900;line-height:1;color:var(--pink-dark);cursor:pointer;box-shadow:var(--shadow);}
+  .dotsbtn{display:flex;align-items:center;justify-content:center;gap:5px;flex:0 0 auto;height:40px;padding:0 12px;background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--pink-dark);cursor:pointer;box-shadow:var(--shadow);}
+  .dotsbtn .dl{font-size:14px;font-weight:700;line-height:1;}
+  .dotsbtn .dd{font-size:22px;font-weight:900;line-height:1;}
+  .searchrow{align-items:center;margin-bottom:12px;}
+  .searchrow .searchbar{margin-bottom:0;}
+  .searchrow .searchbar input{height:40px;box-sizing:border-box;padding:6px 10px 6px 32px;font-size:13px;border-radius:10px;}
+  .searchrow .searchbar span{left:10px;font-size:14px;}
   .dotsbtn:active{background:var(--border);}
   .sidebar{position:fixed;top:0;left:0;bottom:0;height:100%;max-height:none;width:min(82vw,320px);z-index:50;border-radius:0 18px 18px 0;padding:14px 16px 24px;font-size:14px;transform:translateX(-105%);visibility:hidden;transition:transform .25s ease,visibility 0s linear .25s;box-shadow:6px 0 28px rgba(0,0,0,.25);overflow-y:auto;}
   .sidebar.open{transform:none;visibility:visible;transition:transform .25s ease,visibility 0s;}
@@ -670,7 +676,7 @@ function renderStore(){
       </div>
       <div class="storecontent">
         <div class="searchrow">
-          <button type="button" class="dotsbtn" onclick="toggleSidebar(true)" aria-label="মেনু খুলুন">⋮</button>
+          <button type="button" class="dotsbtn" onclick="toggleSidebar(true)" aria-label="মেনু খুলুন"><span class="dl">মেনু</span><span class="dd">⋮</span></button>
           <div class="searchbar"><span>🔍</span><input id="searchBox" value="${searchQuery}" placeholder="Search a product" oninput="setSearchQuery(this.value)"></div>
         </div>
         ${filterSubcat!=='All'?`<div class="note" style="margin-bottom:10px">Sub-category: <b>${filterSubcat}</b> <span style="cursor:pointer;color:var(--pink-dark)" onclick="clearSubcat()">✕ clear</span></div>`:''}
