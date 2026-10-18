@@ -28,7 +28,9 @@ service cloud.firestore {
       allow update: if isAdmin()
         || (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['stock','sold'])
             && request.resource.data.stock >= 0
-            && request.resource.data.stock < resource.data.stock);
+            && request.resource.data.stock < resource.data.stock
+            && resource.data.stock - request.resource.data.stock <= 20
+            && request.resource.data.get('sold', 0) - resource.data.get('sold', 0) == resource.data.stock - request.resource.data.stock);
     }
 
     match /orders/{doc} {

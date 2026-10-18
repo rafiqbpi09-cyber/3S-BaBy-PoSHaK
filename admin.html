@@ -116,6 +116,17 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
 try{ localStorage.setItem('bp_no_track','1'); }catch(e){}
+// কোনো সেভ/ডিলিট/আপডেট ব্যর্থ হলে চুপচাপ না থেকে বার্তা দেখায়
+let _lastErrAlert = 0;
+window.addEventListener('unhandledrejection', e=>{
+  const m = (e.reason && e.reason.message) ? e.reason.message : String(e.reason||'');
+  e.preventDefault();
+  if(Date.now() - _lastErrAlert < 1500) return;
+  _lastErrAlert = Date.now();
+  if(/permission|insufficient/i.test(m)) alert('❌ সেভ/আপডেট হয়নি — অনুমতি নেই।\nFirestore Rules Publish করেছেন কি? সঠিক Admin ইমেইলে লগইন আছে কি?');
+  else if(/offline|unavailable|network/i.test(m)) alert('❌ ইন্টারনেট সংযোগে সমস্যা — আবার চেষ্টা করুন।');
+  else alert('❌ কাজটি সম্পন্ন হয়নি: ' + m);
+});
 const SHOP_NAME = "Baby Poshak";
 const SHOP_LOGO = "data:image/jpeg;base64,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"; // মেমো/ইনভয়েসের হেডারে ব্যবহৃত লোগো
 const SHOP_TAGLINE = "ছোটদের জন্য সুন্দর পোশাক, সুস্থ ও আনন্দময় শৈশবের জন্য...";
@@ -346,6 +357,7 @@ function renderAdmin(){
       <button class="${adminTab==='visitors'?'active':''}" onclick="setAdminTab('visitors')">👥 ভিজিটর</button>
       <button class="${adminTab==='banners'?'active':''}" onclick="setAdminTab('banners')">🖼️ ব্যানার</button>
       <button class="${adminTab==='ticker'?'active':''}" onclick="setAdminTab('ticker')">📢 নোটিশ বার</button>
+      <button class="${adminTab==='backup'?'active':''}" onclick="setAdminTab('backup')">💾 Backup${backupOverdue()?' ⚠️':''}</button>
     </div>
     <div id="adminBody"></div>`;
   renderAdminBody();
@@ -362,14 +374,14 @@ function renderAdminBody(){
   if(adminTab==='products'){
     body.innerHTML = `<button class="primary" style="margin-bottom:12px" onclick="editProduct(null)">+ নতুন প্রোডাক্ট</button>
     <div class="overflow-x"><table class="wide"><tr><th>Photo</th><th>Product</th><th>Categories</th><th>Age</th><th>Size</th><th>Price</th><th>Stock</th><th>Edit</th><th>Delete</th></tr>
-    ${products.map(p=>`<tr><td>${p.imageUrl?`<img src="${p.imageUrl}" style="width:36px;height:36px;object-fit:cover;border-radius:6px;">`:p.emoji}</td><td>${p.name}</td><td>${p.category||''}</td><td>${p.ageGroup||''}</td><td>${p.size||''}</td><td>৳${p.price}</td><td class="${p.stock<=5?'pstock low':''}">${p.stock}</td>
+    ${products.map(p=>`<tr><td>${p.imageUrl?`<img src="${esc(p.imageUrl)}" style="width:36px;height:36px;object-fit:cover;border-radius:6px;">`:esc(p.emoji)}</td><td>${esc(p.name)}</td><td>${esc(p.category||'')}</td><td>${esc(p.ageGroup||'')}</td><td>${esc(p.size||'')}</td><td>৳${p.price}</td><td class="${p.stock<=5?'pstock low':''}">${p.stock}</td>
       <td><button class="smallbtn edit" onclick="editProduct('${p.id}')">✏️ এডিট</button></td><td><button class="smallbtn del" onclick="deleteProduct('${p.id}')">🗑️ ডিলিট</button></td></tr>`).join('')}
     </table></div>`;
   } else if(adminTab==='orders'){
     body.innerHTML = orders.length ? `<div class="overflow-x"><table class="wide"><tr><th>অর্ডার ID</th><th>কাস্টমার</th><th>মোট</th><th>স্ট্যাটাস</th><th></th></tr>
     ${orders.map(o=>`<tr><td><small>${esc(o.id)}</small><br><small style="color:var(--muted)">${fmtDate(o.createdAt)}</small></td>
-      <td>${esc(o.name)}<br><small>${esc(o.phone)}</small></td><td>৳${Number(o.total)||0}<br><small>${esc(o.pay)}</small></td>
-      <td><select onchange="updateStatus('${esc(o.id)}',this.value)">${STATUSES.map(s=>`<option ${o.status===s?'selected':''}>${s}</option>`).join('')}</select>${receiptBadge(o)}</td>
+      <td>${esc(o.name)}<br><small>${esc(o.phone)}</small></td><td>৳${Number(o.total)||0}<br><small>${esc(o.pay)}${o.trxId?' · '+esc(o.trxId):''}</small></td>
+      <td><select onchange="updateStatus('${esc(o.id)}',this.value)">${STATUSES.map(s=>`<option ${o.status===s?'selected':''}>${s}</option>`).join('')}</select>${receiptBadge(o)}${orderFlags(o).some(x=>x.high)?'<br><span class="stbadge Cancelled" title="যাচাই দরকার" style="cursor:pointer" onclick="editOrder(\''+esc(o.id)+'\')">⚠️ যাচাই</span>':''}</td>
       <td><button class="smallbtn edit" onclick="editOrder('${esc(o.id)}')">বিস্তারিত / কুরিয়ার</button></td></tr>`).join('')}
     </table></div>` : '<p>এখনো কোনো অর্ডার নেই।</p>';
   } else if(adminTab==='analytics'){
@@ -384,6 +396,8 @@ function renderAdminBody(){
     renderBannersTab(body);
   } else if(adminTab==='ticker'){
     renderTickerTab(body);
+  } else if(adminTab==='backup'){
+    renderBackupTab(body);
   }
 }
 function startOfToday(){ const d=new Date(); d.setHours(0,0,0,0); return d.getTime(); }
@@ -487,7 +501,7 @@ function showOrdersDetail(){
 function showLowStockDetail(){
   const low = products.filter(p=>p.stock<=5).sort((a,b)=>a.stock-b.stock);
   const rows = low.map(p=>`<div class="cartrow" style="cursor:pointer" onclick="closeSheet();editProduct('${p.id}')">
-      <div>${p.imageUrl?`<img src="${p.imageUrl}" style="width:28px;height:28px;object-fit:cover;border-radius:5px;vertical-align:middle;margin-right:6px;">`:p.emoji} ${esc(p.name)}</div>
+      <div>${p.imageUrl?`<img src="${esc(p.imageUrl)}" style="width:28px;height:28px;object-fit:cover;border-radius:5px;vertical-align:middle;margin-right:6px;">`:esc(p.emoji)} ${esc(p.name)}</div>
       <div class="${p.stock===0?'pstock low':''}" style="font-weight:700">${p.stock===0?'স্টক শেষ':p.stock+' পিস বাকি'}</div></div>`).join('');
   showSheet(`<button class="close" onclick="closeSheet()">✕</button><h2>⚠️ লো-স্টক আইটেম</h2>
     ${rows || '<p class="note">কোনো লো-স্টক আইটেম নেই।</p>'}`);
@@ -508,11 +522,46 @@ function statusPatch(o, status){
   if(o.status===status) return {};
   return { status, history: firebase.firestore.FieldValue.arrayUnion({status, at: Date.now()}) };
 }
+function orderFlags(o){
+  const f = [], items = o.items || [];
+  const sub = items.reduce((s,i)=>s+(Number(i.price)||0)*(Number(i.qty)||0),0);
+  const calc = sub + (Number(o.deliveryCharge)||0);
+  if(Math.abs(calc - (Number(o.total)||0)) > 0.5) f.push({high:true, t:`মোট টাকা মেলেনি — অর্ডারে মোট ৳${Number(o.total)||0}, কিন্তু আইটেম + ডেলিভারি চার্জ = ৳${calc}`});
+  items.forEach(i=>{
+    const p = products.find(x=>x.id===i.id);
+    if(!(Number(i.price)>0) || !(Number(i.qty)>0)) f.push({high:true, t:`${i.name||i.id}: দাম বা পরিমাণ সঠিক নয়`});
+    else if(p && Number(i.price) < Number(p.price)) f.push({high:false, t:`${i.name||i.id}: অর্ডারে দাম ৳${i.price}, বর্তমান দাম ৳${p.price} (অফার/ছাড় না থাকলে যাচাই করুন)`});
+  });
+  if(o.trxId){
+    const dup = orders.filter(x=>x.id!==o.id && x.trxId===o.trxId);
+    if(dup.length) f.push({high:true, t:`এই Transaction ID আরও ${dup.length}টি অর্ডারে দেওয়া হয়েছে (${dup.map(x=>x.id).join(', ')}) — কনফার্ম করার আগে যাচাই করুন`});
+  }
+  return f;
+}
+function orderFlagsHtml(o){ return orderFlags(o).map(x=>`<br><b style="color:${x.high?'#c92a2a':'#b45309'}">⚠️ ${esc(x.t)}</b>`).join(''); }
 async function restockOrder(o){
   if(!confirm('অর্ডারটি বাতিল করা হলো। প্রোডাক্টের স্টক ফেরত যোগ করবেন?')) return;
+  const failed = [];
   for(const it of (o.items||[])){
-    try{ await db.collection('products').doc(it.id).update({ stock: firebase.firestore.FieldValue.increment(Number(it.qty)||0), sold: firebase.firestore.FieldValue.increment(-(Number(it.qty)||0)) }); }catch(e){ console.warn(e); }
+    try{ await db.collection('products').doc(it.id).update({ stock: firebase.firestore.FieldValue.increment(Number(it.qty)||0), sold: firebase.firestore.FieldValue.increment(-(Number(it.qty)||0)) }); }
+    catch(e){ console.warn(e); failed.push(it.name||it.id); }
   }
+  if(failed.length) alert('❌ এই প্রোডাক্টগুলোর স্টক ফেরত যোগ হয়নি (প্রোডাক্ট ডিলিট হয়ে থাকতে পারে): ' + failed.join(', '));
+  // স্টক ফেরত দেওয়া হয়েছে — পরে অর্ডার আবার চালু করলে এটা দেখে আবার স্টক কমানো হবে
+  try{ await db.collection('orders').doc(o.id).update({ stockRestored: failed.length===0 }); }catch(e){ console.warn(e); }
+}
+async function destockOrder(o){
+  if(!o.stockRestored) return; // আগে স্টক ফেরত না দিলে আবার কমানোর দরকার নেই
+  const short = (o.items||[]).filter(it=>{ const p = products.find(x=>x.id===it.id); return !p || (Number(p.stock)||0) < (Number(it.qty)||0); });
+  const msg = 'অর্ডারটি আবার চালু করা হলো। প্রোডাক্টের স্টক আবার কমাবেন?' + (short.length ? '\n\n⚠️ স্টক কম আছে: ' + short.map(i=>i.name||i.id).join(', ') : '');
+  if(!confirm(msg)) return;
+  const failed = [];
+  for(const it of (o.items||[])){
+    try{ await db.collection('products').doc(it.id).update({ stock: firebase.firestore.FieldValue.increment(-(Number(it.qty)||0)), sold: firebase.firestore.FieldValue.increment(Number(it.qty)||0) }); }
+    catch(e){ console.warn(e); failed.push(it.name||it.id); }
+  }
+  if(failed.length) alert('❌ এই প্রোডাক্টগুলোর স্টক কমানো যায়নি: ' + failed.join(', '));
+  try{ await db.collection('orders').doc(o.id).update({ stockRestored: false }); }catch(e){ console.warn(e); }
 }
 async function updateStatus(id, status){
   const o = orders.find(x=>x.id===id); if(!o) return;
@@ -520,13 +569,14 @@ async function updateStatus(id, status){
   if(!Object.keys(patch).length) return;
   await db.collection('orders').doc(id).update(patch);
   if(status==='Cancelled') await restockOrder(o);
+  else if(o.status==='Cancelled') await destockOrder(o);
 }
 function editOrder(id){
   const o = orders.find(x=>x.id===id); if(!o) return;
   const items = (o.items||[]).map(i=>`<li>${esc(i.name)} × ${Number(i.qty)||0} = ৳${(Number(i.price)||0)*(Number(i.qty)||0)}</li>`).join('');
   showSheet(`<button class="close" onclick="closeSheet()">✕</button>
     <h2>অর্ডার ${esc(o.id)}</h2>
-    <p style="font-size:13px;line-height:1.6"><b>${esc(o.name)}</b> · ${esc(o.phone)}<br>📍 ${esc(o.addr)}<br>💳 ${esc(o.pay)} · মোট ৳${Number(o.total)||0}${o.trxId?`<br>🔖 <b>Transaction ID: ${esc(o.trxId)}</b>`:''}<br><small>${fmtDate(o.createdAt)}</small></p>
+    <p style="font-size:13px;line-height:1.6"><b>${esc(o.name)}</b> · ${esc(o.phone)}<br>📍 ${esc(o.addr)}<br>💳 ${esc(o.pay)} · মোট ৳${Number(o.total)||0}${o.trxId?`<br>🔖 <b>Transaction ID: ${esc(o.trxId)}</b>`:''}${orderFlagsHtml(o)}<br><small>${fmtDate(o.createdAt)}</small></p>
     ${o.customerConfirmed ? `<p style="background:#e7f8ef;color:#0e9f6e;font-weight:700;padding:8px 12px;border-radius:8px;font-size:13px">✅ কাস্টমার প্রোডাক্ট রিসিভ নিশ্চিত করেছেন (${fmtDate(o.customerConfirmedAt)})</p>` : ((o.status==='Shipped'||o.status==='Delivered') ? `<p style="background:#fff3cd;color:#856404;padding:8px 12px;border-radius:8px;font-size:13px">⏳ কাস্টমার এখনো রিসিভ নিশ্চিত করেননি</p>` : '')}
     <ul class="features-list">${items}</ul>
     <label>স্ট্যাটাস</label>
@@ -556,6 +606,7 @@ async function saveOrder(id){
   });
   await db.collection('orders').doc(id).update(patch);
   if(status==='Cancelled' && o.status!=='Cancelled') await restockOrder(o);
+  else if(o.status==='Cancelled' && status!=='Cancelled') await destockOrder(o);
   closeSheet();
 }
 function whatsappCustomer(id){
@@ -615,7 +666,7 @@ function renderOnlineMemoList(){
   const list = orders.slice().sort((a,b)=>orderMs(b)-orderMs(a)).filter(o=>!q || (o.id||'').toLowerCase().includes(q) || (o.name||'').toLowerCase().includes(q) || (o.phone||'').includes(q));
   if(!list.length) return '<p class="note">কোনো অনলাইন অর্ডার মেমো পাওয়া যায়নি।</p>';
   return list.map(o=>`<div class="ordercard" style="cursor:default">
-      <b>${esc(o.id)}</b> <span class="stbadge ${o.status==='Cancelled'?'Cancelled':''}">${esc(STATUS_LABEL[o.status]||o.status)}</span><br>
+      <b>${esc(o.id)}</b> <span class="stbadge ${o.status==='Cancelled'?'Cancelled':''}">${esc(STATUS_LABEL[o.status]||o.status)}</span>${orderFlags(o).some(x=>x.high)?' <span class="stbadge Cancelled" title="যাচাই দরকার">⚠️ যাচাই</span>':''}<br>
       <small>${esc(o.name)} · ${esc(o.phone)} · ৳${Number(o.total)||0} · ${fmtDate(o.createdAt)}</small>
       <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
         <button class="smallbtn edit" onclick="openOrderInvoice('${esc(o.id)}')">🧾 Memo দেখুন</button>
@@ -1195,20 +1246,20 @@ async function deleteOffer(id){
 function editProduct(id){
   const p = id ? products.find(x=>x.id===id) : {name:'',emoji:'👶',price:0,purchasePrice:0,originalPrice:0,stock:0,category:'',subcategory:'',ageGroup:'',imageUrl:'',extraImages:'',features:''};
   showSheet(`<button class="close" onclick="closeSheet()">✕</button><h2>${id?'প্রোডাক্ট এডিট':'নতুন প্রোডাক্ট'}</h2>
-    <label>নাম</label><input id="pName" value="${p.name}">
+    <label>নাম</label><input id="pName" value="${esc(p.name)}">
     <label>Image URL</label>
     <a href="https://postimages.org" target="_blank" class="secondary" style="display:inline-block;text-decoration:none;padding:8px 12px;font-size:13px;margin-bottom:8px;">📤 postimages.org খুলুন (ছবি আপলোড করে "Direct link" কপি করুন)</a>
-    <input id="pImg" value="${p.imageUrl||''}" placeholder="এখানে Direct link পেস্ট করুন">
-    <label>আরও ছবি (গ্যালারি, একাধিক হলে কমা দিয়ে আলাদা করুন — ঐচ্ছিক)</label><input id="pExtraImg" value="${p.extraImages||''}" placeholder="url1, url2, url3">
-    <label>ইমোজি/আইকন (ছবি না থাকলে এটা দেখাবে)</label><input id="pEmoji" value="${p.emoji}">
+    <input id="pImg" value="${esc(p.imageUrl||'')}" placeholder="এখানে Direct link পেস্ট করুন">
+    <label>আরও ছবি (গ্যালারি, একাধিক হলে কমা দিয়ে আলাদা করুন — ঐচ্ছিক)</label><input id="pExtraImg" value="${esc(p.extraImages||'')}" placeholder="url1, url2, url3">
+    <label>ইমোজি/আইকন (ছবি না থাকলে এটা দেখাবে)</label><input id="pEmoji" value="${esc(p.emoji)}">
     <label>Purchase Price / কেনা দাম (৳)</label><input id="pPurchase" type="number" value="${p.purchasePrice||''}">
     <label>Selling Price / বিক্রয় মূল্য (৳)</label><input id="pPrice" type="number" value="${p.price}">
     <label>আগের দাম (ঐচ্ছিক — ডিসকাউন্ট দেখাতে চাইলে)</label><input id="pOldPrice" type="number" value="${p.originalPrice||''}">
     <label>স্টক</label><input id="pStock" type="number" value="${p.stock}">
     <label>Main Category</label>
     <select id="pCat">${CATEGORIES.map(c=>`<option ${p.category===c?'selected':''}>${c}</option>`).join('')}</select>
-    <label>Sub-category (যেমন: Frock, Romper, T-Shirt)</label><input id="pSubcat" value="${p.subcategory||''}">
-    <label>Color (ঐচ্ছিক)</label><input id="pColor" value="${p.color||''}" placeholder="যেমন: Blue, Pink">
+    <label>Sub-category (যেমন: Frock, Romper, T-Shirt)</label><input id="pSubcat" value="${esc(p.subcategory||'')}">
+    <label>Color (ঐচ্ছিক)</label><input id="pColor" value="${esc(p.color||'')}" placeholder="যেমন: Blue, Pink">
     <label>Age/Size</label>
     <select id="pAge"><option value="">— নির্বাচন করুন —</option>${AGE_GROUPS.map(a=>`<option ${p.ageGroup===a?'selected':''}>${a}</option>`).join('')}</select>
     <label>Size Number</label>
@@ -1221,7 +1272,7 @@ function editProduct(id){
       </table></div>
     </details>
     <label>Key Features (প্রতি লাইনে একটা ফিচার লিখুন)</label>
-    <textarea id="pFeatures" rows="4" placeholder="100% Cotton\nSoft & breathable\nMachine washable">${p.features||''}</textarea>
+    <textarea id="pFeatures" rows="4" placeholder="100% Cotton\nSoft & breathable\nMachine washable">${esc(p.features||'')}</textarea>
     <label style="display:flex;align-items:center;gap:8px;"><input type="checkbox" id="pFreeDel" style="width:auto;margin:0;" ${p.freeDelivery?'checked':''}> Free Delivery</label>
     <button class="primary" style="width:100%" onclick="saveProduct('${id||''}')">সেভ করুন</button>`);
 }
@@ -1252,7 +1303,142 @@ async function deleteProduct(id){
   await db.collection('products').doc(id).delete();
 }
 
+// ---------- 💾 BACKUP (A to Z ডেটা ব্যাকআপ) ----------
+const BACKUP_COLS = [['products','প্রোডাক্ট'],['orders','অর্ডার'],['memos','মেমো'],['offers','অফার'],['banners','ব্যানার'],['ticker','নোটিশ বার'],['visits','ভিজিটর']];
+const RESTORABLE = ['products','memos','offers','banners','ticker']; // Rules অনুযায়ী অর্ডার/ভিজিট ফেরত লেখা যায় না
+function backupLast(){ try{ return Number(localStorage.getItem('bp_last_backup'))||0; }catch(e){ return 0; } }
+function backupOverdue(){ const t = backupLast(); return !t || (Date.now()-t) > 7*86400000; }
+function bkSer(v){
+  if(v && typeof v.toMillis === 'function') return {__ts: v.toMillis()};
+  if(Array.isArray(v)) return v.map(bkSer);
+  if(v && typeof v === 'object'){ const o = {}; Object.keys(v).forEach(k=>{ o[k] = bkSer(v[k]); }); return o; }
+  return v;
+}
+function bkDeser(v){
+  if(Array.isArray(v)) return v.map(bkDeser);
+  if(v && typeof v === 'object'){
+    const ks = Object.keys(v);
+    if(ks.length === 1 && ks[0] === '__ts' && typeof v.__ts === 'number') return firebase.firestore.Timestamp.fromMillis(v.__ts);
+    const o = {}; ks.forEach(k=>{ o[k] = bkDeser(v[k]); }); return o;
+  }
+  return v;
+}
+function bkStamp(){ const d = new Date(), p = n=>String(n).padStart(2,'0'); return d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+'-'+p(d.getHours())+p(d.getMinutes()); }
+function bkDownload(name, text, mime){
+  const blob = new Blob([text], {type: mime});
+  const l = document.createElement('a'); l.href = URL.createObjectURL(blob); l.download = name;
+  document.body.appendChild(l); l.click();
+  setTimeout(()=>{ URL.revokeObjectURL(l.href); l.remove(); }, 1500);
+}
+function bkLastText(){
+  const t = backupLast();
+  if(!t) return '<b style="color:#c92a2a">⚠️ এখনো কোনো ব্যাকআপ নেওয়া হয়নি</b>';
+  const days = Math.floor((Date.now()-t)/86400000);
+  const when = new Date(t).toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'numeric',minute:'2-digit',hour12:true});
+  return `<b style="color:${days>7?'#c92a2a':'#0e9f6e'}">শেষ ব্যাকআপ: ${esc(when)} (${days===0?'আজ':days+' দিন আগে'})${days>7?' — আবার নিন ⚠️':''}</b>`;
+}
+function renderBackupTab(body){
+  body.innerHTML = `
+    <div class="ordercard" style="cursor:default">
+      <h3 style="margin:0 0 6px">💾 পুরো ডেটার ব্যাকআপ (A to Z)</h3>
+      <p class="note" style="margin:0 0 8px" id="bkLast">${bkLastText()}</p>
+      <p class="note" style="margin:0 0 10px">প্রোডাক্ট, অর্ডার, মেমো, অফার, ব্যানার ও নোটিশ বারের সব ডেটা এক ফাইলে (.json) ডাউনলোড হবে। সপ্তাহে অন্তত একবার নিন এবং ফাইলটা Google Drive বা অন্য জায়গায় রেখে দিন।</p>
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;margin-bottom:10px"><input type="checkbox" id="bkVisits" style="width:auto;margin:0"> ভিজিটর (visits) ডেটাও নিন <small style="color:var(--muted)">(ভিজিট বেশি হলে Firebase রিড বেশি লাগে)</small></label>
+      <button class="primary" style="width:100%;margin-bottom:8px" onclick="backupAll()">⬇️ পুরো ডেটা ব্যাকআপ ডাউনলোড (JSON)</button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="secondary" style="flex:1;min-width:150px" onclick="backupCsv('orders')">🧾 অর্ডার (Excel/CSV)</button>
+        <button class="secondary" style="flex:1;min-width:150px" onclick="backupCsv('products')">📦 প্রোডাক্ট (Excel/CSV)</button>
+      </div>
+      <div id="bkStatus" class="note" style="margin-top:10px"></div>
+    </div>
+    <div class="ordercard" style="cursor:default">
+      <h3 style="margin:0 0 6px">♻️ ব্যাকআপ থেকে ফিরিয়ে আনুন</h3>
+      <p class="note" style="margin:0 0 8px">ব্যাকআপ ফাইল (.json) বেছে নিন। <b>প্রোডাক্ট, মেমো, অফার, ব্যানার ও নোটিশ বার</b> ফিরে আসবে — একই ID থাকলে ব্যাকআপের ডেটা দিয়ে বদলে যাবে, এখনকার বাড়তি ডেটা মুছবে না। অর্ডার ও ভিজিটর নিরাপত্তা Rules এর কারণে ফেরত লেখা যায় না, ওগুলো শুধু রেকর্ডের জন্য ফাইলে থাকে।</p>
+      <input type="file" id="bkFile" accept=".json,application/json">
+      <button class="secondary" style="width:100%" onclick="restoreBackup()">♻️ ফিরিয়ে আনা শুরু করুন</button>
+    </div>`;
+}
+async function backupAll(){
+  const st = document.getElementById('bkStatus');
+  const withVisits = document.getElementById('bkVisits').checked;
+  const cols = BACKUP_COLS.filter(c=>withVisits || c[0] !== 'visits');
+  const out = {app:'Baby Poshak', version:1, exportedAt:new Date().toISOString(), exportedBy:(auth.currentUser && auth.currentUser.email) || '', counts:{}, data:{}};
+  for(const [name,label] of cols){
+    st.textContent = '⏳ ' + label + ' নেওয়া হচ্ছে...';
+    const snap = await db.collection(name).get();
+    out.data[name] = snap.docs.map(d=>({id:d.id, data:bkSer(d.data())}));
+    out.counts[name] = out.data[name].length;
+  }
+  bkDownload('baby-poshak-backup-' + bkStamp() + '.json', JSON.stringify(out, null, 1), 'application/json');
+  try{ localStorage.setItem('bp_last_backup', String(Date.now())); }catch(e){}
+  st.innerHTML = '✅ ব্যাকআপ ডাউনলোড হয়েছে: ' + cols.map(c=>esc(c[1]) + ' ' + out.counts[c[0]] + 'টি').join(' · ');
+  const ll = document.getElementById('bkLast'); if(ll) ll.innerHTML = bkLastText();
+}
+function csvCell(v){ const s = String(v == null ? '' : v); return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s; }
+function csvText(rows){ return '\uFEFF' + rows.map(r=>r.map(csvCell).join(',')).join('\r\n'); }
+function bkDate(ts){ const ms = ts && ts.toMillis ? ts.toMillis() : 0; return ms ? new Date(ms).toLocaleString('en-GB') : ''; }
+async function backupCsv(kind){
+  const st = document.getElementById('bkStatus');
+  st.textContent = '⏳ ডেটা নেওয়া হচ্ছে...';
+  const snap = await db.collection(kind).get();
+  const docs = snap.docs.map(d=>({id:d.id, ...d.data()}));
+  let rows;
+  if(kind === 'orders'){
+    rows = [['Order ID','Date','Name','Phone','Address','Payment','Transaction ID','Items','Delivery Area','Delivery Charge','Total','Status','Courier','Tracking ID','Customer Confirmed']];
+    docs.sort((a,b)=>(b.createdAt&&b.createdAt.toMillis?b.createdAt.toMillis():0)-(a.createdAt&&a.createdAt.toMillis?a.createdAt.toMillis():0)).forEach(o=>{
+      rows.push([o.id, bkDate(o.createdAt), o.name, o.phone, o.addr, o.pay, o.trxId||'', (o.items||[]).map(i=>i.name+' x'+i.qty+' @'+i.price).join(' | '), o.deliveryArea, o.deliveryCharge, o.total, o.status, o.courier||'', o.trackingId||'', o.customerConfirmed?'Yes':'']);
+    });
+  } else {
+    rows = [['ID','Name','Category','Sub-category','Age','Size','Color','Price','Purchase Price','Original Price','Stock','Sold','Image URL','Features']];
+    docs.forEach(p=>{ rows.push([p.id, p.name, p.category||'', p.subcategory||'', p.ageGroup||'', p.size||'', p.color||'', p.price, p.purchasePrice||0, p.originalPrice||0, p.stock, p.sold||0, p.imageUrl||'', (p.features||'').replace(/\n/g,' / ')]); });
+  }
+  bkDownload('baby-poshak-' + kind + '-' + bkStamp() + '.csv', csvText(rows), 'text/csv;charset=utf-8');
+  st.innerHTML = '✅ ' + (kind==='orders'?'অর্ডার':'প্রোডাক্ট') + ' ' + docs.length + 'টি CSV ফাইলে ডাউনলোড হয়েছে (Excel এ খুলবে)';
+}
+async function restoreBackup(){
+  const f = document.getElementById('bkFile').files[0];
+  if(!f){ alert('আগে ব্যাকআপ ফাইল (.json) বেছে নিন'); return; }
+  let j;
+  try{ j = JSON.parse(await f.text()); }catch(e){ alert('ফাইলটি পড়া যায়নি — সঠিক Baby Poshak ব্যাকআপ (.json) দিন'); return; }
+  if(!j || j.app !== 'Baby Poshak' || !j.data){ alert('এটা Baby Poshak এর ব্যাকআপ ফাইল নয়'); return; }
+  const cols = RESTORABLE.filter(c=>Array.isArray(j.data[c]) && j.data[c].length);
+  if(!cols.length){ alert('ফাইলে ফিরিয়ে আনার মতো ডেটা নেই'); return; }
+  const msg = 'ব্যাকআপের সময়: ' + (j.exportedAt || '?') + '\n\n' + cols.map(c=>c + ': ' + j.data[c].length + 'টি').join('\n') + '\n\nএই ডেটা এখনকার ডেটার ওপর লেখা হবে (একই ID থাকলে ব্যাকআপের মান বসবে, এখনকার বাড়তি ডেটা মুছবে না)। চালিয়ে যাবেন?';
+  if(!confirm(msg)) return;
+  if(!confirm('শেষবার নিশ্চিত করুন — ফিরিয়ে আনা শুরু হবে।')) return;
+  const st = document.getElementById('bkStatus');
+  let total = 0;
+  for(const c of cols){
+    const arr = j.data[c];
+    for(let i = 0; i < arr.length; i += 400){
+      st.textContent = '⏳ ' + c + ' ফিরিয়ে আনা হচ্ছে... ' + Math.min(i+400, arr.length) + '/' + arr.length;
+      const batch = db.batch();
+      arr.slice(i, i+400).forEach(x=>{ if(x && x.id && x.data) batch.set(db.collection(c).doc(x.id), bkDeser(x.data)); });
+      await batch.commit();
+    }
+    total += arr.length;
+  }
+  st.innerHTML = '✅ ' + total + 'টি ডেটা ফিরিয়ে আনা হয়েছে: ' + cols.map(esc).join(', ');
+}
+
 renderAdmin();
+</script>
+<script>
+/* অ্যাডমিনের সেভ/ডিলিট/আপডেট ব্যর্থ হলে এখন বার্তা দেখায় (আগে চুপচাপ ব্যর্থ হতো) */
+function guard(fn){
+  return async function(...args){
+    try{ return await fn.apply(this, args); }
+    catch(e){
+      console.error(e);
+      const code = e && e.code ? e.code : '';
+      alert('❌ কাজটি সম্পন্ন হয়নি' + (code==='permission-denied'
+        ? ' — অনুমতি নেই। Admin ইমেইলে লগইন আছে কি না এবং Firestore Rules Publish করা আছে কি না দেখুন।'
+        : (e && e.message ? ': ' + e.message : '')));
+    }
+  };
+}
+['updateStatus','saveOrder','saveMemo','finalizeMemo','deleteMemo','saveBanner','saveBulkBanners','moveBanner','deleteBanner','moveTicker','deleteTicker','saveOffer','deleteOffer','saveProduct','deleteProduct','restockOrder','destockOrder','backupAll','backupCsv','restoreBackup']
+  .forEach(n=>{ if(typeof window[n] === 'function') window[n] = guard(window[n]); });
 </script>
 </body>
 </html>
